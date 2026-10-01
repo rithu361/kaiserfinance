@@ -760,7 +760,7 @@ function kf_sanitize_settings($in) {
     $repo = trim(sanitize_text_field($in['github_repo'] ?? ''));
     $repo = preg_replace('#^(https?://)?(www\.)?github\.com/#i', '', rtrim($repo, '/'));
     $repo = preg_replace('#\.git$#', '', $repo);
-    $out['github_repo'] = preg_match('#^[\w.-]+/[\w.-]+$#', $repo) ? $repo : '';
+    $out['github_repo'] = preg_match('#^[\w.-]+/[\w.-]+$#', $repo) ? $repo : kf_default_settings()['github_repo'];
     if ($out['github_repo'] !== kf_settings()['github_repo']) {
         delete_transient('kf_remote_version');
         delete_site_transient('update_plugins');

@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.3.2
+- Updates keep working even if the "Updates from GitHub" field was saved empty.
+
 ## 2.3.1
 - After an update, cached numbers are cleared and missing prices (e.g. new benchmarks) are fetched on the next visits instead of waiting an hour.
 - Benchmark chips appear only once a benchmark has prices.

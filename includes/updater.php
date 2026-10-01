@@ -17,6 +17,9 @@ add_action('upgrader_process_complete', 'kf_updater_clear', 10, 2);
 
 function kf_updater_repo() {
     $repo = (defined('KF_GITHUB_REPO') && KF_GITHUB_REPO !== '') ? KF_GITHUB_REPO : kf_settings()['github_repo'];
+    if ($repo === '' || $repo === null) {
+        $repo = kf_default_settings()['github_repo']; // an empty saved field means "use the default"
+    }
     return preg_match('#^[\w.-]+/[\w.-]+$#', (string) $repo) ? $repo : '';
 }
 
