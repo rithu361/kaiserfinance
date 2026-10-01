@@ -18,6 +18,17 @@ add_action('admin_post_kf_set_price', 'kf_handle_set_price');
 add_action('admin_post_kf_save_cash', 'kf_handle_save_cash');
 add_action('admin_post_kf_delete_cash', 'kf_handle_delete_cash');
 add_action('admin_post_kf_reset', 'kf_handle_reset');
+add_action('admin_post_kf_check_updates', 'kf_handle_check_updates');
+
+function kf_handle_check_updates() {
+    if (!current_user_can('update_plugins')) {
+        wp_die('Not allowed.');
+    }
+    check_admin_referer('kf_check_updates');
+    kf_updater_check_now();
+    wp_safe_redirect(admin_url('admin.php?page=kaiserfinance-settings#kf-updates'));
+    exit;
+}
 
 /** Empty the ledger: trades, cash, assets and stored prices. Settings and API key stay. */
 function kf_handle_reset() {
@@ -812,6 +823,12 @@ function kf_settings_page() {
                     <td>
                         <input id="kf-repo" class="regular-text" name="kf_settings[github_repo]" value="<?php echo esc_attr($s['github_repo']); ?>" placeholder="github.com/yourname/kaiserfinance">
                         <p class="description">Paste the public repo address. New versions then show up under Plugins as "Update available"; switch on "Enable auto-updates" there to install them automatically.</p>
+                        <?php $st = kf_updater_status(); ?>
+                        <p id="kf-updates" class="description" style="margin-top:8px">
+                            <strong>Last check:</strong>
+                            <?php echo $st ? esc_html(wp_date('d.m.Y H:i', $st['time']) . ' · ' . $st['message']) : 'not yet'; ?>
+                            · <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=kf_check_updates'), 'kf_check_updates')); ?>">Check GitHub now</a>
+                        </p>
                     </td>
                 </tr>
                 <tr>

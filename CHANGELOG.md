@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.3
+- Update check asks both GitHub's raw file and its API, so it works even if one is unreachable or cached.
+- Settings shows the result of the last update check, with a "Check GitHub now" link.
+
 ## 2.3.2
 - Updates keep working even if the "Updates from GitHub" field was saved empty.
 

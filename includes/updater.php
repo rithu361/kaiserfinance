@@ -27,20 +27,69 @@ function kf_updater_repo() {
 function kf_updater_remote_version($force = false) {
     $repo = kf_updater_repo();
     if ($repo === '') {
+        kf_updater_status('No GitHub repo set.');
         return null;
     }
     $cached = get_transient('kf_remote_version');
     if (!$force && $cached !== false) {
         return $cached ?: null;
     }
-    $res = wp_remote_get('https://raw.githubusercontent.com/' . $repo . '/main/kaiserfinance.php', array('timeout' => 10));
-    $ver = '';
-    if (!is_wp_error($res) && wp_remote_retrieve_response_code($res) === 200
-        && preg_match('/^\s*\*\s*Version:\s*([0-9][0-9.]*)/mi', wp_remote_retrieve_body($res), $m)) {
+
+    $ver    = '';
+    $errors = array();
+    $args   = array('timeout' => 15, 'headers' => array('User-Agent' => 'KaiserFinance-Updater', 'Cache-Control' => 'no-cache'));
+
+    // 1) Raw file (fast, cached by GitHub for up to 5 minutes).
+    $res = wp_remote_get('https://raw.githubusercontent.com/' . $repo . '/main/kaiserfinance.php?t=' . time(), $args);
+    if (is_wp_error($res)) {
+        $errors[] = 'raw: ' . $res->get_error_message();
+    } elseif (wp_remote_retrieve_response_code($res) !== 200) {
+        $errors[] = 'raw: HTTP ' . wp_remote_retrieve_response_code($res);
+    } elseif (preg_match('/^\s*\*\s*Version:\s*([0-9][0-9.]*)/mi', wp_remote_retrieve_body($res), $m)) {
         $ver = $m[1];
+    } else {
+        $errors[] = 'raw: no version line found';
     }
-    set_transient('kf_remote_version', $ver, $ver ? 6 * HOUR_IN_SECONDS : HOUR_IN_SECONDS);
+
+    // 2) GitHub API (always current), also used when the raw file can't be reached.
+    $api = wp_remote_get('https://api.github.com/repos/' . $repo . '/contents/kaiserfinance.php?ref=main', array_merge($args, array(
+        'headers' => array('User-Agent' => 'KaiserFinance-Updater', 'Accept' => 'application/vnd.github.raw'),
+    )));
+    if (is_wp_error($api)) {
+        $errors[] = 'api: ' . $api->get_error_message();
+    } elseif (wp_remote_retrieve_response_code($api) !== 200) {
+        $errors[] = 'api: HTTP ' . wp_remote_retrieve_response_code($api);
+    } elseif (preg_match('/^\s*\*\s*Version:\s*([0-9][0-9.]*)/mi', wp_remote_retrieve_body($api), $m)) {
+        if ($ver === '' || version_compare($m[1], $ver, '>')) {
+            $ver = $m[1];
+        }
+    }
+
+    if ($ver !== '') {
+        kf_updater_status(sprintf('GitHub has version %s (installed: %s).', $ver, KF_VERSION) . ($errors ? ' Notes: ' . implode('; ', $errors) : ''));
+    } else {
+        kf_updater_status('Could not reach GitHub: ' . implode('; ', $errors));
+    }
+    set_transient('kf_remote_version', $ver, $ver ? 6 * HOUR_IN_SECONDS : 15 * MINUTE_IN_SECONDS);
     return $ver ?: null;
+}
+
+/** Remember the outcome of the last check, shown under Settings. */
+function kf_updater_status($message = null) {
+    if ($message === null) {
+        return get_option('kf_update_status', array());
+    }
+    update_option('kf_update_status', array('time' => time(), 'message' => $message), false);
+}
+
+/** "Check GitHub now" in Settings: look up the version and refresh WordPress's update list. */
+function kf_updater_check_now() {
+    delete_transient('kf_remote_version');
+    kf_updater_remote_version(true);
+    delete_site_transient('update_plugins');
+    if (function_exists('wp_update_plugins')) {
+        wp_update_plugins();
+    }
 }
 
 function kf_updater_package() {
@@ -51,7 +100,7 @@ function kf_updater_check($transient) {
     if (!is_object($transient) || kf_updater_repo() === '') {
         return $transient;
     }
-    $force  = isset($_GET['force-check']); // "Check again" on Dashboard → Updates
+    $force  = isset($_GET['force-check']) || isset($_GET['kf-check']); // "Check again" on Dashboard → Updates
     $remote = kf_updater_remote_version($force);
     $file   = plugin_basename(KF_DIR . 'kaiserfinance.php');
     $item   = (object) array(
