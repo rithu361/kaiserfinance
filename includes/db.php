@@ -21,13 +21,12 @@ function kf_table($name) {
 function kf_default_settings() {
     return array(
         'api_key'         => '',
-        'benchmark'       => 'SPY',   // tracks the S&P 500; available on Twelve Data's free plan
+        'benchmark'       => 'SPY',   // default comparison (S&P 500); visitors can add others
         'refresh_minutes' => 60,
         'show_allocation' => 0,       // 1 = show allocation in % on the public page
         'standalone'      => 1,       // 1 = the plugin draws the whole homepage (no theme)
-        'benchmarks'      => array(), // extra benchmarks visitors can switch to (see kf_benchmark_catalog)
-        'public_amounts'  => 'none',
-        'github_repo'     => 'shokulab/kaiserfinance', // owner/name the plugin updates itself from  // none | totals | holdings: what real amounts the public page shows
+        'public_amounts'  => 'none',  // none | totals | holdings: what real amounts the public page shows
+        'github_repo'     => 'shokulab/kaiserfinance', // owner/name the plugin updates itself from
     );
 }
 
