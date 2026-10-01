@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.4.0
+- Chart tooltip: hover, tap or use the arrow keys to see the date and every line's value, with a guide line.
+
 ## 2.3.3
 - Update check asks both GitHub's raw file and its API, so it works even if one is unreachable or cached.
 - Settings shows the result of the last update check, with a "Check GitHub now" link.

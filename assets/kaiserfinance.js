@@ -154,7 +154,7 @@
 
   /* pts: [{d, p, b: {id: value}}]; ids: benchmark ids to draw. */
   function benchVar(id) { return 'var(--kf-b-' + id.split('/')[0].toLowerCase() + ', var(--kf-index))'; }
-  function drawChart(box, pts, ids) {
+  function drawChart(box, pts, ids, names) {
     if (pts.length < 2) {
       box.innerHTML = '<p class="kf-empty">' + esc(t('emptyChart')) + '</p>';
       return;
@@ -209,6 +209,78 @@
     svg += '<text x="' + (W - R) + '" y="' + (H - 8) + '" text-anchor="end">' + esc(fmtDate(last.d)) + '</text>';
     svg += '</svg>';
     box.innerHTML = svg;
+    attachTooltip(box, pts, ids, names || {}, { W: W, H: H, L: L, R: R, T: T, B: B, x: x, y: y });
+  }
+
+  /* Hover / tap / arrow keys: a guide line plus the date and every line's value. */
+  function attachTooltip(box, pts, ids, names, g) {
+    var svgEl = box.querySelector('svg');
+    if (!svgEl || pts.length < 2) return;
+    var NS = 'http://www.w3.org/2000/svg';
+    var guide = document.createElementNS(NS, 'line');
+    guide.setAttribute('y1', g.T); guide.setAttribute('y2', g.H - g.B);
+    guide.setAttribute('stroke', 'var(--kf-muted)'); guide.setAttribute('stroke-dasharray', '3 3');
+    guide.setAttribute('opacity', '0');
+    svgEl.appendChild(guide);
+    var marks = [];
+    function mark(color) {
+      var c = document.createElementNS(NS, 'circle');
+      c.setAttribute('r', '4.5'); c.setAttribute('fill', color);
+      c.setAttribute('stroke', 'var(--kf-panel)'); c.setAttribute('stroke-width', '2'); c.setAttribute('opacity', '0');
+      svgEl.appendChild(c); marks.push(c); return c;
+    }
+    var rows = ids.map(function (id) { return { id: id, color: benchVar(id), dot: mark(benchVar(id)) }; });
+    var own = { color: 'var(--kf-gold)', dot: mark('var(--kf-gold)') };
+    var tip = el('div', { 'class': 'kf-tip', role: 'status', 'aria-live': 'polite' });
+    tip.hidden = true;
+    box.appendChild(tip);
+    svgEl.setAttribute('tabindex', '0');
+    var n = pts.length, current = n - 1;
+
+    function show(i) {
+      current = Math.max(0, Math.min(n - 1, i));
+      var p = pts[current], px = g.x(current);
+      guide.setAttribute('x1', px); guide.setAttribute('x2', px); guide.setAttribute('opacity', '0.7');
+      var place = function (dot, v) {
+        if (v == null) { dot.setAttribute('opacity', '0'); return; }
+        dot.setAttribute('cx', px); dot.setAttribute('cy', g.y(v)); dot.setAttribute('opacity', '1');
+      };
+      place(own.dot, p.p);
+      rows.forEach(function (r) { place(r.dot, p.b[r.id]); });
+      var line = function (color, name, v) {
+        return '<div class="kf-tip-row"><i style="background:' + color + '"></i><span>' + esc(name) + '</span><b class="' + cls(v) + '">' + pct(v) + '</b></div>';
+      };
+      tip.innerHTML = '<div class="kf-tip-date">' + esc(fmtDate(p.d)) + '</div>' +
+        line(own.color, t('legendPortfolio'), p.p) +
+        rows.map(function (r) { return line(r.color, names[r.id] || r.id, p.b[r.id]); }).join('');
+      tip.hidden = false;
+      var scale = svgEl.getBoundingClientRect().width / g.W;
+      var left = px * scale, tw = tip.offsetWidth, bw = box.clientWidth;
+      tip.style.left = Math.max(0, Math.min(bw - tw, left > bw / 2 ? left - tw - 12 : left + 12)) + 'px';
+    }
+    function hide() {
+      tip.hidden = true;
+      guide.setAttribute('opacity', '0');
+      marks.forEach(function (m) { m.setAttribute('opacity', '0'); });
+    }
+    function fromPointer(ev) {
+      var rect = svgEl.getBoundingClientRect();
+      var vx = (ev.clientX - rect.left) / (rect.width / g.W);
+      show(Math.round((vx - g.L) / (g.W - g.L - g.R) * (n - 1)));
+    }
+    svgEl.addEventListener('pointermove', fromPointer);
+    svgEl.addEventListener('pointerdown', fromPointer);
+    svgEl.addEventListener('pointerleave', function (ev) { if (ev.pointerType === 'mouse') hide(); });
+    svgEl.addEventListener('focus', function () { show(current); });
+    svgEl.addEventListener('blur', hide);
+    svgEl.addEventListener('keydown', function (ev) {
+      var step = ev.shiftKey ? 7 : 1;
+      if (ev.key === 'ArrowLeft') { ev.preventDefault(); show(current - step); }
+      else if (ev.key === 'ArrowRight') { ev.preventDefault(); show(current + step); }
+      else if (ev.key === 'Home') { ev.preventDefault(); show(0); }
+      else if (ev.key === 'End') { ev.preventDefault(); show(n - 1); }
+      else if (ev.key === 'Escape') { hide(); }
+    });
   }
 
   /* ---------- language/currency: text fades out, swaps, fades back in ---------- */
@@ -464,7 +536,9 @@
       var idx = series.indexOf(pts[0]);
       if (!whole && idx > 0) pts = [series[idx - 1]].concat(pts);
       var view = whole ? series : rebase(pts);
-      drawChart(chart, view, selected);
+      var names = {};
+      selected.forEach(function (id) { names[id] = bname(byId[id]); });
+      drawChart(chart, view, selected, names);
       updateStats(view, whole);
       Array.prototype.forEach.call(ranges.children, function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
       root.setAttribute('data-kf-range', from);

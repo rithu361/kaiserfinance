@@ -103,3 +103,18 @@ html[data-theme="dark"] .kf { --kf-b-spy: #8fb0d8; --kf-b-qqq: #5cc8b8; --kf-b-u
 .kf-chip:focus-visible { outline: 2px solid var(--kf-gold); outline-offset: 2px; }
 .kf-range-row { display: flex; justify-content: flex-end; margin-top: -6px; }
 .kf-periods tbody th i { border-radius: 2px; }
+/* Chart tooltip. */
+.kf-chart { position: relative; }
+.kf-chart svg { touch-action: pan-y; cursor: crosshair; }
+.kf-chart svg:focus-visible { outline: 2px solid var(--kf-gold); outline-offset: 4px; border-radius: 4px; }
+.kf-tip {
+  position: absolute; top: 6px; z-index: 2; min-width: 168px; pointer-events: none;
+  background: var(--kf-panel); color: var(--kf-ink); border: 1px solid var(--kf-line); border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .12); padding: 8px 10px; font-size: 13px; display: grid; gap: 4px;
+}
+.kf-tip-date { font-size: 12px; color: var(--kf-muted); margin-bottom: 2px; }
+.kf-tip-row { display: grid; grid-template-columns: 8px 1fr auto; align-items: center; gap: 8px; }
+.kf-tip-row i { width: 8px; height: 8px; border-radius: 50%; }
+.kf-tip-row b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.kf-tip[hidden] { display: none; }
+.kf-chart svg:focus:not(:focus-visible) { outline: none; }
