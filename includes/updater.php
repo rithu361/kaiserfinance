@@ -86,7 +86,7 @@ function kf_updater_info($result, $action, $args) {
         'requires_php'  => '7.4',
         'sections'      => array(
             'description' => 'Private trade ledger with a public performance page against the S&amp;P 500 and other benchmarks.',
-            'changelog'   => '<p>See the commit history on <a href="' . esc_url('https://github.com/' . kf_updater_repo() . '/commits/main') . '" target="_blank" rel="noopener">GitHub</a>.</p>',
+            'changelog'   => kf_updater_changelog_html(),
         ),
     );
 }
@@ -112,4 +112,26 @@ function kf_updater_clear($upgrader, $options) {
     if (isset($options['type']) && $options['type'] === 'plugin') {
         delete_transient('kf_remote_version');
     }
+}
+
+/** CHANGELOG.md from GitHub as simple HTML for the "View details" window. */
+function kf_updater_changelog_html() {
+    $fallback = '<p>See the commit history on <a href="' . esc_url('https://github.com/' . kf_updater_repo() . '/commits/main') . '" target="_blank" rel="noopener">GitHub</a>.</p>';
+    $res = wp_remote_get('https://raw.githubusercontent.com/' . kf_updater_repo() . '/main/CHANGELOG.md', array('timeout' => 10));
+    if (is_wp_error($res) || wp_remote_retrieve_response_code($res) !== 200) {
+        return $fallback;
+    }
+    $html = '';
+    $open = false;
+    foreach (preg_split('/\r?\n/', wp_remote_retrieve_body($res)) as $line) {
+        if (preg_match('/^##\s+(.+)$/', $line, $m)) {
+            if ($open) { $html .= '</ul>'; $open = false; }
+            $html .= '<h4>' . esc_html($m[1]) . '</h4>';
+        } elseif (preg_match('/^-\s+(.+)$/', $line, $m)) {
+            if (!$open) { $html .= '<ul>'; $open = true; }
+            $html .= '<li>' . esc_html($m[1]) . '</li>';
+        }
+    }
+    if ($open) { $html .= '</ul>'; }
+    return $html !== '' ? $html : $fallback;
 }

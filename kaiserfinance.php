@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Kai$erFinance
  * Description: Private trade ledger with a public performance page against the S&P 500 and other benchmarks, in USD or CHF. Use the shortcode [kaiserfinance] on any page.
- * Version:     2.1.1
+ * Version:     2.3.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author:      shokulab
@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('KF_VERSION', '2.1.1');
+define('KF_VERSION', '2.3.0');
 define('KF_DIR', plugin_dir_path(__FILE__));
 define('KF_URL', plugin_dir_url(__FILE__));
 // GitHub repo the plugin updates itself from (owner/name).
