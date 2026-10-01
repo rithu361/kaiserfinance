@@ -318,6 +318,7 @@ function kf_performance() {
             'name'       => $p['name'],
             'currency'   => $cur,
             'mode'       => $inst ? $inst['mode'] : 'auto',
+            'type'       => $inst ? (string) $inst['type'] : '',
             'qty'        => $p['qty'],
             'avg_cost'   => $p['qty'] ? $p['cost_native'] / $p['qty'] : 0, // instrument currency
             'price'      => $price,                                         // instrument currency
@@ -412,11 +413,12 @@ function kf_public_payload() {
     $parts = array();
     foreach ($perf['holdings'] as $h) {
         if ($h['value'] > 0) {
-            $parts[] = array('name' => $h['name'], 'value' => $h['value'], 'qty' => $h['qty'], 'symbol' => $h['symbol']);
+            $parts[] = array('name' => $h['name'], 'value' => $h['value'], 'qty' => $h['qty'], 'symbol' => $h['symbol'],
+                'tv' => $h['mode'] === 'auto' ? kf_tradingview_url($h['ikey'], $h['symbol'], $h['type'] ?? '') : '');
         }
     }
     if ($perf['totals'] && $perf['totals']['cash_usd'] > 0) {
-        $parts[] = array('name' => '__cash__', 'value' => $perf['totals']['cash_usd'], 'qty' => null, 'symbol' => '');
+        $parts[] = array('name' => '__cash__', 'value' => $perf['totals']['cash_usd'], 'qty' => null, 'symbol' => '', 'tv' => '');
     }
     $sum = array_sum(array_column($parts, 'value'));
     usort($parts, function ($a, $b) { return $b['value'] <=> $a['value']; });
@@ -424,7 +426,7 @@ function kf_public_payload() {
     $level = $settings['public_amounts'];
     if ((!empty($settings['show_allocation']) || $level === 'holdings') && $sum > 0) {
         foreach ($parts as $p) {
-            $payload['allocation'][] = array('name' => $p['name'], 'pct' => round($p['value'] / $sum * 100, 1));
+            $payload['allocation'][] = array('name' => $p['name'], 'pct' => round($p['value'] / $sum * 100, 1), 'tv' => $p['tv']);
         }
     }
 
@@ -443,6 +445,7 @@ function kf_public_payload() {
                 $payload['amounts']['holdings'][] = array(
                     'name'   => $p['name'],
                     'symbol' => $p['symbol'],
+                    'tv'     => $p['tv'],
                     'qty'    => $p['qty'] === null ? null : round($p['qty'], 6),
                     'value'  => $both($p['value']),
                     'pct'    => $sum > 0 ? round($p['value'] / $sum * 100, 1) : 0,
@@ -452,6 +455,42 @@ function kf_public_payload() {
     }
 
     return $payload;
+}
+
+/* ---------- TradingView links ---------- */
+
+/**
+ * A plain link to the instrument's chart on TradingView (no TradingView script on our page).
+ * Exchange from the MIC code; unknown exchanges fall back to TradingView's own symbol lookup.
+ */
+function kf_tradingview_url($ikey, $symbol, $type = '') {
+    $symbol = strtoupper(trim((string) $symbol));
+    if ($symbol === '' || !preg_match('#^[A-Z0-9./-]{1,20}$#', $symbol)) {
+        return '';
+    }
+    $mic = strpos((string) $ikey, '@') !== false ? strtoupper(substr($ikey, strpos($ikey, '@') + 1)) : '';
+
+    if (strpos($symbol, '/') !== false) { // FX pair, metal or crypto, e.g. XAU/USD, BTC/USD
+        $pair = str_replace('/', '', $symbol);
+        if (preg_match('#^(XAU|XAG|XPT|XPD)#', $pair)) {
+            $tv = 'OANDA:' . $pair;
+        } elseif (stripos((string) $type, 'digital') !== false || stripos((string) $type, 'crypto') !== false) {
+            $tv = 'COINBASE:' . $pair;
+        } else {
+            $tv = 'FX:' . $pair;
+        }
+        return 'https://www.tradingview.com/chart/?symbol=' . rawurlencode($tv);
+    }
+
+    $map = array(
+        'XNAS' => 'NASDAQ', 'XNGS' => 'NASDAQ', 'XNCM' => 'NASDAQ', 'XNMS' => 'NASDAQ', 'XNYS' => 'NYSE', 'ARCX' => 'AMEX', 'XASE' => 'AMEX',
+        'XASX' => 'ASX', 'XTSE' => 'TSX', 'XTSX' => 'TSXV', 'XCNQ' => 'CSE', 'XLON' => 'LSE', 'XETR' => 'XETR', 'XFRA' => 'FWB',
+        'XSWX' => 'SIX', 'XVTX' => 'SIX', 'XPAR' => 'EURONEXT', 'XAMS' => 'EURONEXT', 'XBRU' => 'EURONEXT', 'XLIS' => 'EURONEXT',
+        'XMIL' => 'MIL', 'XMAD' => 'BME', 'XSTO' => 'OMXSTO', 'XHEL' => 'OMXHEX', 'XCSE' => 'OMXCOP', 'XOSL' => 'OSL',
+        'XTKS' => 'TSE', 'XHKG' => 'HKEX', 'XJSE' => 'JSE', 'XNZE' => 'NZX', 'XKRX' => 'KRX', 'XSES' => 'SGX', 'XWBO' => 'VIE',
+    );
+    $tv = isset($map[$mic]) ? $map[$mic] . ':' . $symbol : $symbol;
+    return 'https://www.tradingview.com/chart/?symbol=' . rawurlencode($tv);
 }
 
 /* ---------- cash checks ---------- */

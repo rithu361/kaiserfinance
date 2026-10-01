@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.0
+- Holdings and allocation on the public page link to each instrument's chart on TradingView (new tab, small arrow icon).
+- Plain links only: no TradingView script or cookies on the site. Cash and manually priced items have no link.
+
 ## 2.5.0
 - YouTube and Instagram links in the homepage footer, translated, editable under Settings → Social links (empty = hidden).
 - Search engines get schema.org data linking the site to those accounts.

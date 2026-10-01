@@ -27,6 +27,7 @@
       light: 'Light',
       dark: 'Dark',
       login: 'Log in',
+      tvOpen: 'Chart on TradingView (opens in a new tab)',
       youtube: 'Kai$erFinance on YouTube',
       instagram: 'Kai$erFinance on Instagram',
       allocation: 'Allocation',
@@ -70,6 +71,7 @@
       light: 'Hell',
       dark: 'Dunkel',
       login: 'Anmelden',
+      tvOpen: 'Chart auf TradingView (öffnet in neuem Tab)',
       youtube: 'Kai$erFinance auf YouTube',
       instagram: 'Kai$erFinance auf Instagram',
       allocation: 'Aufteilung',
@@ -580,9 +582,17 @@
 
     // Holdings with amounts, or the allocation bars.
     var nameOf = function (n) { return n === '__cash__' ? t('cash') : n; };
+    // Name links to the TradingView chart when there is one (plain link, opens in a new tab).
+    var tvLink = function (label, url) {
+      if (!url || !/^https:\/\/www\.tradingview\.com\//.test(url)) return label;
+      var tip = esc(t('tvOpen'));
+      return '<a class="kf-tv" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer" title="' + tip + '">' + label +
+        '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5h5v5M9.5 2.5 3 9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+        '<span class="kf-sr">' + tip + '</span></a>';
+    };
     if (am && am.holdings && am.holdings.length) {
       var rows = am.holdings.map(function (h) {
-        return '<tr><th scope="row">' + esc(nameOf(h.name)) + (h.symbol ? ' <small>' + esc(h.symbol) + '</small>' : '') + '</th>' +
+        return '<tr><th scope="row">' + tvLink(esc(nameOf(h.name)) + (h.symbol ? ' <small>' + esc(h.symbol) + '</small>' : ''), h.tv) + '</th>' +
           '<td class="kf-num">' + esc(qtyFmt(h.qty)) + '</td>' +
           '<td class="kf-num">' + money(h.value[ccy]) + '</td>' +
           '<td class="kf-num">' + num(h.pct, 1) + '%</td></tr>';
@@ -594,7 +604,7 @@
       var alloc = el('div', { 'class': 'kf-alloc' }, '<span class="kf-label">' + esc(t('allocation')) + '</span>');
       data.allocation.forEach(function (a) {
         alloc.insertAdjacentHTML('beforeend',
-          '<div class="kf-alloc-row"><span>' + esc(nameOf(a.name)) + '</span><div class="kf-alloc-track"><div class="kf-alloc-fill" style="width:' +
+          '<div class="kf-alloc-row"><span>' + tvLink(esc(nameOf(a.name)), a.tv) + '</span><div class="kf-alloc-track"><div class="kf-alloc-fill" style="width:' +
           Math.max(0, Math.min(100, a.pct)) + '%"></div></div><span class="kf-num">' + num(a.pct, 1) + '%</span></div>');
       });
       root.appendChild(alloc);
