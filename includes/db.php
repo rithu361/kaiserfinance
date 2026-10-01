@@ -27,7 +27,7 @@ function kf_default_settings() {
         'standalone'      => 1,       // 1 = the plugin draws the whole homepage (no theme)
         'benchmarks'      => array(), // extra benchmarks visitors can switch to (see kf_benchmark_catalog)
         'public_amounts'  => 'none',
-        'github_repo'     => '',      // owner/name the plugin updates itself from  // none | totals | holdings: what real amounts the public page shows
+        'github_repo'     => 'shokulab/kaiserfinance', // owner/name the plugin updates itself from  // none | totals | holdings: what real amounts the public page shows
     );
 }
 
