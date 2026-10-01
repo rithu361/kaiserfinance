@@ -1,0 +1,3 @@
+kf-serif.ttf: subset of Libre Baskerville Bold by Impallari Type, SIL Open Font License 1.1.
+kf-sans.ttf, kf-sans-bold.ttf: subsets of DejaVu Sans (Bitstream Vera license / public domain changes).
+Used only to draw the link-preview image.

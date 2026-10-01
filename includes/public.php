@@ -1,0 +1,121 @@
+<?php
+/**
+ * Public side.
+ *  - Shortcode [kaiserfinance]: the performance block, usable on any page.
+ *  - Standalone homepage: when enabled in Settings, the front page is drawn
+ *    entirely by the plugin (header, block, footer) and the theme is not used.
+ * Only percentages are ever sent to the browser.
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+add_shortcode('kaiserfinance', 'kf_shortcode');
+add_action('template_redirect', 'kf_maybe_standalone', 1);
+add_filter('get_site_icon_url', 'kf_default_site_icon', 10, 2);
+
+/**
+ * Use the plugin's gold $ as the site icon (browser tabs, bookmarks, phone home screens,
+ * admin and login pages) unless one was set under Settings → General → Site Icon.
+ */
+function kf_default_site_icon($url, $size) {
+    // A real site icon chosen in WordPress wins. Otherwise replace WordPress's own
+    // fallback too (the grey "W" it serves for /favicon.ico).
+    if ((int) get_option('site_icon')) {
+        return $url;
+    }
+    if ($size <= 64) {
+        return KF_URL . 'assets/icon-32.png';
+    }
+    return KF_URL . ($size <= 180 ? 'assets/icon-180.png' : 'assets/icon-512.png');
+}
+
+/** The block's HTML. On the standalone homepage the language switch sits in the page header. */
+function kf_block_html($standalone = false) {
+    kf_maybe_refresh_fallback();
+
+    $data = kf_public_payload();
+    $id   = 'kf-' . wp_rand(1000, 999999);
+
+    return '<div class="kf" id="' . esc_attr($id) . '" data-kf="' . esc_attr(wp_json_encode($data)) . '">'
+        . '<noscript><p>Turn on JavaScript to see the performance chart.</p></noscript>'
+        . '</div>';
+}
+
+function kf_shortcode() {
+    wp_enqueue_style('kaiserfinance', KF_URL . 'assets/kaiserfinance.css', array(), KF_VERSION);
+    wp_enqueue_script('kaiserfinance', KF_URL . 'assets/kaiserfinance.js', array(), KF_VERSION, true);
+    return kf_block_html(false);
+}
+
+function kf_maybe_standalone() {
+    if (!is_front_page() || is_admin() || is_feed() || is_embed()) {
+        return;
+    }
+    if (empty(kf_settings()['standalone'])) {
+        return;
+    }
+    kf_render_standalone();
+    exit;
+}
+
+function kf_render_standalone() {
+    $v        = rawurlencode(KF_VERSION);
+    $css      = esc_url(KF_URL . 'assets/kaiserfinance.css?ver=' . $v);
+    $site_css = esc_url(KF_URL . 'assets/site.css?ver=' . $v);
+    $js       = esc_url(KF_URL . 'assets/kaiserfinance.js?ver=' . $v);
+    $icon     = get_site_icon_url(64);
+    $noindex  = get_option('blog_public') === '0';
+    $year     = gmdate('Y');
+
+    status_header(200);
+    nocache_headers(); // prices change hourly; never serve a stale copy
+    header('Content-Type: text/html; charset=utf-8');
+    ?><!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>try{if(localStorage.getItem('kf-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}</script>
+<title>Kai$erFinance</title>
+<meta name="description" content="<?php echo esc_attr(kf_og_description()); ?>">
+<?php echo kf_og_tags(); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped inside ?>
+<?php if ($noindex) : ?><meta name="robots" content="noindex, nofollow">
+<?php endif; ?>
+<?php if ($icon) : ?><link rel="icon" href="<?php echo esc_url($icon); ?>">
+<?php endif; ?>
+<?php if (!(int) get_option('site_icon')) : ?><link rel="icon" type="image/svg+xml" href="<?php echo esc_url(KF_URL . 'assets/icon.svg'); ?>">
+<?php endif; ?>
+<link rel="apple-touch-icon" href="<?php echo esc_url(get_site_icon_url(180)); ?>">
+<link rel="stylesheet" href="<?php echo $css; ?>">
+<link rel="stylesheet" href="<?php echo $site_css; ?>">
+</head>
+<body class="kf-site">
+<header class="kf-site-head">
+  <a class="kf-brand" href="<?php echo esc_url(home_url('/')); ?>" aria-label="Kai$erFinance">Kai<span class="kf-brand-mark">$</span>erFinance</a>
+  <div class="kf-head-right">
+    <div id="kf-lang-slot"></div>
+    <a class="kf-login" href="<?php echo esc_url(admin_url('admin.php?page=kaiserfinance')); ?>" data-kf-t-label="login" aria-label="Log in" title="Log in">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    </a>
+  </div>
+</header>
+<main class="kf-site-main">
+  <div class="kf-site-intro">
+    <p class="kf-eyebrow" data-kf-t="eyebrow">Spot portfolio · USD</p>
+    <h1 data-kf-t="headline">How the portfolio stacks up against the S&amp;P 500</h1>
+    <p class="kf-lede" data-kf-t="lede">The return of the whole account, cash included, against the S&amp;P 500 over exactly the same days. Money paid in or taken out doesn&#8217;t count as performance.</p>
+  </div>
+  <?php echo kf_block_html(true); // phpcs:ignore WordPress.Security.EscapeOutput -- built from escaped parts ?>
+</main>
+<footer class="kf-site-foot">
+  <span>© <?php echo esc_html($year); ?> Kai$erFinance</span>
+  <span class="kf-site-note" data-kf-t="disclaimer">Past performance is no guarantee of future results. Not investment advice.</span>
+  <a class="kf-powered" href="https://shokulab.ch" target="_blank" rel="noopener">Powered by shokulab</a>
+</footer>
+<script src="<?php echo $js; ?>"></script>
+</body>
+</html>
+<?php
+}

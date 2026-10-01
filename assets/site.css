@@ -1,0 +1,162 @@
+/* Kai$erFinance standalone homepage.
+ * Layout: one calm column — wordmark + language switch, headline, the performance block, a quiet footer.
+ * The gold "$" in the wordmark is the one accent; everything else stays neutral.
+ * Light by default; the header switch sets data-theme="dark" on <html>. */
+:root {
+  --site-bg: #f3f4f1;
+  --site-ink: #161b22;
+  --site-muted: #5b6470;
+  --site-line: #d9ddd6;
+  --site-gold: #a8730f;
+  --site-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --site-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  color-scheme: light;
+}
+html[data-theme="dark"] {
+  --site-bg: #0e1217;
+  --site-ink: #e7ebef;
+  --site-muted: #97a3b0;
+  --site-line: #26303b;
+  --site-gold: #e0ad4a;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body.kf-site {
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font: 16px/1.55 var(--site-sans);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.kf-site a { color: inherit; }
+.kf-site a:focus-visible, .kf-site button:focus-visible { outline: 2px solid var(--site-gold); outline-offset: 3px; border-radius: 4px; }
+
+.kf-site-head,
+.kf-site-main,
+.kf-site-foot {
+  width: 100%;
+  max-width: 1040px;
+  margin-inline: auto;
+  padding-inline: 20px;
+}
+
+.kf-site-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-block: 22px;
+}
+.kf-brand {
+  font: 600 clamp(20px, 3vw, 24px)/1 var(--site-serif);
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+.kf-brand-mark { color: var(--site-gold); }
+
+.kf-site-main {
+  flex: 1;
+  display: grid;
+  gap: 28px;
+  padding-block: clamp(20px, 5vw, 56px) 56px;
+}
+.kf-site-intro { max-width: 640px; display: grid; gap: 12px; }
+.kf-eyebrow {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--site-muted);
+}
+.kf-site h1 {
+  margin: 0;
+  font: 500 clamp(30px, 5.2vw, 48px)/1.08 var(--site-serif);
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+.kf-lede { margin: 0; color: var(--site-muted); max-width: 60ch; }
+
+/* The block sits on the page as the one card. */
+.kf-site .kf { max-width: none; margin: 0; width: 100%; font-family: var(--site-sans); }
+.kf-site .kf-admin-link { margin: -12px 0 0; }
+
+.kf-site-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 24px;
+  padding-block: 24px 32px;
+  border-top: 1px solid var(--site-line);
+  font-size: 13px;
+  color: var(--site-muted);
+}
+.kf-site-note { flex: 1 1 280px; }
+.kf-powered {
+  text-decoration: none;
+  font-weight: 600;
+  color: var(--site-ink);
+  white-space: nowrap;
+}
+.kf-powered:hover { color: var(--site-gold); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .kf-powered { transition: color .15s ease; }
+}
+
+/* Language switch in the header uses the page's own colours. */
+.kf-site-head .kf-lang { border-color: var(--site-line); }
+.kf-site-head .kf-lang button { color: var(--site-muted); }
+.kf-site-head .kf-lang button[aria-pressed="true"] { background: var(--site-ink); color: var(--site-bg); }
+
+/* Header controls: theme + language. */
+.kf-controls { display: flex; align-items: center; gap: 10px; }
+.kf-site-head .kf-theme { display: inline-flex; border: 1px solid var(--site-line); border-radius: 99px; overflow: hidden; }
+.kf-site-head .kf-theme button { display: grid; place-items: center; width: 34px; height: 26px; border: 0; background: none; color: var(--site-muted); cursor: pointer; padding: 0; }
+.kf-site-head .kf-theme button svg { width: 15px; height: 15px; }
+.kf-site-head .kf-theme button[aria-pressed="true"] { background: var(--site-ink); color: var(--site-bg); }
+
+/* Theme change animation (see setTheme in kaiserfinance.js). */
+.kf-wash {
+  position: fixed;
+  z-index: 2147483000;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: transform, opacity;
+  transform: scale(0.06);
+}
+
+/* Language change: text fades out and back in. */
+.kf-site-intro, .kf-site-note, .kf > * { transition: opacity .2s ease, transform .2s ease; }
+html.kf-text-out .kf-site-intro,
+html.kf-text-out .kf-site-note,
+html.kf-text-out .kf > *:not(.kf-top) { opacity: 0; transform: translateY(3px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .kf-site-intro, .kf-site-note, .kf > * { transition: none; }
+}
+
+/* Login icon, top right. */
+.kf-head-right { display: flex; align-items: center; gap: 10px; }
+.kf-login {
+  display: grid; place-items: center;
+  width: 34px; height: 28px;
+  border: 1px solid var(--site-line); border-radius: 99px;
+  color: var(--site-muted);
+}
+.kf-login svg { width: 16px; height: 16px; }
+.kf-login:hover { color: var(--site-ink); border-color: var(--site-muted); }
+
+/* Header wraps on narrow screens: wordmark on top, controls below. */
+.kf-site-head { flex-wrap: wrap; row-gap: 12px; }
+.kf-head-right { flex-wrap: wrap; justify-content: flex-end; }
+@media (max-width: 560px) {
+  .kf-site-head { justify-content: center; }
+  .kf-brand { width: 100%; text-align: center; }
+  .kf-head-right { width: 100%; justify-content: center; }
+}
