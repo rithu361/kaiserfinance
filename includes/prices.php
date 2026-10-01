@@ -120,7 +120,8 @@ function kf_refresh_prices() {
     uasort($plan, function ($a, $b) {
         return strcmp($a['latest'], $b['latest']);
     });
-    // Stay under the free plan's 8 requests per minute. Remaining series go next run.
+    // Stay under the free plan's 8 requests per minute. Remaining series go next run,
+    // which comes sooner while some series have no prices at all yet (see below).
     $plan = array_slice($plan, 0, 7, true);
 
     $errors = array();
@@ -162,7 +163,16 @@ function kf_refresh_prices() {
         }
     }
 
+    // If some series still have no prices (e.g. right after new benchmarks were added),
+    // let the next visit a minute or two from now fetch the rest.
+    $missing = 0;
+    foreach (array_keys($needed) as $key) {
+        if (!$wpdb->get_var($wpdb->prepare("SELECT 1 FROM $table WHERE symbol = %s LIMIT 1", $key))) {
+            $missing++;
+        }
+    }
     update_option('kf_last_refresh', time(), false);
+    update_option('kf_refresh_soon', $missing ? 1 : 0, false);
     update_option('kf_last_errors', $errors, false);
     kf_flush_cache();
     delete_transient('kf_refresh_lock');
@@ -245,7 +255,8 @@ function kf_maybe_refresh_fallback() {
     $settings = kf_settings();
     $interval = max(15, (int) $settings['refresh_minutes']) * 60;
     $age      = time() - (int) get_option('kf_last_refresh', 0);
-    if ($age < 3 * $interval || get_transient('kf_refresh_lock') || $settings['api_key'] === '') {
+    $soon     = get_option('kf_refresh_soon') && $age > 90; // series still waiting for their first prices
+    if ((!$soon && $age < 3 * $interval) || get_transient('kf_refresh_lock') || $settings['api_key'] === '') {
         return;
     }
     add_action('shutdown', function () {

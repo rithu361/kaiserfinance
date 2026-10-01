@@ -105,9 +105,14 @@ function kf_deactivate() {
 }
 
 /* Upgrade tables automatically when the plugin is updated by uploading a new zip. */
+/* After an update: upgrade tables, drop cached numbers, and fetch prices on the next
+   visit (e.g. for newly added benchmarks) instead of waiting for the hourly run. */
 add_action('plugins_loaded', function () {
     if (get_option('kf_db_version') !== KF_VERSION) {
         kf_install_tables();
+        kf_flush_cache();
+        delete_transient('kf_og_png');
+        update_option('kf_refresh_soon', 1, false);
     }
 });
 

@@ -385,6 +385,10 @@ function kf_public_payload() {
 
     $bench = array();
     foreach ($perf['bench'] as $sym => $series) {
+        // Only benchmarks that already have prices (new ones appear after their first fetch).
+        if (!array_filter($series['USD'], function ($v) { return $v !== null; })) {
+            continue;
+        }
         $names = isset($catalog[$sym]) ? $catalog[$sym] : array($sym, $sym);
         $bench[] = array('id' => $sym, 'en' => $names[0], 'de' => $names[1], 'USD' => $series['USD'], 'CHF' => $perf['has_chf'] ? $series['CHF'] : null);
     }

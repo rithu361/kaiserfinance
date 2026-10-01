@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.1
+- After an update, cached numbers are cleared and missing prices (e.g. new benchmarks) are fetched on the next visits instead of waiting an hour.
+- Benchmark chips appear only once a benchmark has prices.
+
 ## 2.3.0
 - Changelog now shows in WordPress under Plugins → Kai$erFinance → View details.
 - Setup notes brought up to date (cash, benchmarks, public amounts, GitHub updates).
