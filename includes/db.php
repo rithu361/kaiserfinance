@@ -27,6 +27,8 @@ function kf_default_settings() {
         'standalone'      => 1,       // 1 = the plugin draws the whole homepage (no theme)
         'public_amounts'  => 'none',  // none | totals | holdings: what real amounts the public page shows
         'github_repo'     => 'shokulab/kaiserfinance', // owner/name the plugin updates itself from
+        'youtube_url'     => 'https://www.youtube.com/@KaiserFinance',     // shown as an icon in the header
+        'instagram_url'   => 'https://www.instagram.com/kaiserfinance.ch/', // empty = hidden
     );
 }
 

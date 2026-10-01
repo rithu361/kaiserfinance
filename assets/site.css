@@ -160,3 +160,18 @@ html.kf-text-out .kf > *:not(.kf-top) { opacity: 0; transform: translateY(3px); 
   .kf-brand { width: 100%; text-align: center; }
   .kf-head-right { width: 100%; justify-content: center; }
 }
+
+/* Social links in the footer (plain links, nothing loaded from the platforms). */
+.kf-social { display: inline-flex; gap: 8px; align-items: center; }
+.kf-social-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 11px 4px 9px; border: 1px solid var(--site-line); border-radius: 99px;
+  color: var(--site-muted); text-decoration: none; font-weight: 600; font-size: 13px; white-space: nowrap;
+}
+.kf-social-link svg { width: 16px; height: 16px; flex: none; }
+.kf-social-link:hover { color: var(--site-ink); border-color: var(--site-muted); }
+.kf-social-link:focus-visible { outline: 2px solid var(--site-gold); outline-offset: 2px; }
+@media (prefers-reduced-motion: no-preference) {
+  .kf-social-link { transition: color .15s ease, border-color .15s ease; }
+}
+.kf-site-foot { align-items: center; }

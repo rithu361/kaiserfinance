@@ -776,6 +776,10 @@ function kf_sanitize_settings($in) {
         delete_transient('kf_remote_version');
         delete_site_transient('update_plugins');
     }
+    foreach (array('youtube_url' => 'youtube.com', 'instagram_url' => 'instagram.com') as $key => $host) {
+        $url = esc_url_raw(trim((string) ($in[$key] ?? '')), array('https'));
+        $out[$key] = ($url !== '' && stripos((string) wp_parse_url($url, PHP_URL_HOST), $host) !== false) ? $url : '';
+    }
     $out['show_allocation'] = empty($in['show_allocation']) ? 0 : 1;
     $out['standalone']      = empty($in['standalone']) ? 0 : 1;
     kf_flush_cache();
@@ -816,6 +820,14 @@ function kf_settings_page() {
                     <td>
                         <label><input type="checkbox" name="kf_settings[show_allocation]" value="1" <?php checked($s['show_allocation'], 1); ?>> Show allocation in % (e.g. Gold 70%, Silver 30%)</label>
                         <p class="description">Always shown when "every holding" is selected above.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Social links</th>
+                    <td>
+                        <p><label for="kf-yt" style="display:inline-block;min-width:80px">YouTube</label> <input id="kf-yt" type="url" class="regular-text" name="kf_settings[youtube_url]" value="<?php echo esc_attr($s['youtube_url']); ?>" placeholder="https://www.youtube.com/@yourchannel"></p>
+                        <p><label for="kf-ig" style="display:inline-block;min-width:80px">Instagram</label> <input id="kf-ig" type="url" class="regular-text" name="kf_settings[instagram_url]" value="<?php echo esc_attr($s['instagram_url']); ?>" placeholder="https://www.instagram.com/yourname/"></p>
+                        <p class="description">Shown as icons in the homepage header and footer. Leave a field empty to hide that icon. Plain links: nothing is loaded from YouTube or Instagram.</p>
                     </td>
                 </tr>
                 <tr>

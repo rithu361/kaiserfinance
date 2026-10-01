@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.5.0
+- YouTube and Instagram links in the homepage footer, translated, editable under Settings → Social links (empty = hidden).
+- Search engines get schema.org data linking the site to those accounts.
+- Plain links only: nothing is loaded from YouTube or Instagram, so no trackers.
+
 ## 2.4.0
 - Chart tooltip: hover, tap or use the arrow keys to see the date and every line's value, with a guide line.
 
