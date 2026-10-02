@@ -221,6 +221,13 @@
   }
 
   /* Hover / tap / arrow keys: a guide line plus the date and every line's value. */
+  // Only one tooltip is open at a time; a tap or click anywhere outside its chart closes it
+  // (phones don't "leave" the chart, so without this the tooltip stayed on).
+  var openTip = null;
+  document.addEventListener('pointerdown', function (ev) {
+    if (openTip && !openTip.svg.contains(ev.target)) openTip.close();
+  }, true);
+
   function attachTooltip(box, pts, ids, names, g) {
     var svgEl = box.querySelector('svg');
     if (!svgEl || pts.length < 2) return;
@@ -262,6 +269,7 @@
         line(own.color, t('legendPortfolio'), p.p) +
         rows.map(function (r) { return line(r.color, names[r.id] || r.id, p.b[r.id]); }).join('');
       tip.hidden = false;
+      openTip = { svg: svgEl, close: close };
       var scale = svgEl.getBoundingClientRect().width / g.W;
       var left = px * scale, tw = tip.offsetWidth, bw = box.clientWidth;
       tip.style.left = Math.max(0, Math.min(bw - tw, left > bw / 2 ? left - tw - 12 : left + 12)) + 'px';
@@ -270,6 +278,11 @@
       tip.hidden = true;
       guide.setAttribute('opacity', '0');
       marks.forEach(function (m) { m.setAttribute('opacity', '0'); });
+      if (openTip && openTip.svg === svgEl) openTip = null;
+    }
+    function close() {
+      hide();
+      if (document.activeElement === svgEl) svgEl.blur(); // so a later tap on the chart opens it again
     }
     function fromPointer(ev) {
       var rect = svgEl.getBoundingClientRect();

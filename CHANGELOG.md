@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.9.1
+- Phones: the chart tooltip now closes when you tap anywhere outside the chart (it used to stay open). Tap the chart again to bring it back.
+
 ## 2.9.0
 - If prices are more than 6 hours old (for example the price service was unreachable), the public page says so: "Prices may be delayed: last updated 12 hours ago", in English and German.
 - "Prices as of" now shows the last successful update, not just the last attempt.
