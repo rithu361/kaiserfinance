@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.13.0
+- Backup: Settings → Backup downloads the whole ledger (trades, cash, assets, prices, settings) as one .json file. The API key is never included.
+- Restore: upload a backup to replace the ledger. The current ledger is kept as a safety copy first, with an "Undo last restore" button.
+- Trades and cash can also be downloaded as CSV for Excel or Numbers.
+- The ledger page reminds you if there's no backup yet or the last one is over a month old.
+
 ## 2.12.1
 - Calmer, more elegant dark mode: warm charcoal instead of blue-black, paper-white text, muted sage and terracotta for gains and losses instead of neon, softer gold and benchmark colours.
 - The comparison line is a quiet panel with a thin gold edge instead of a brown block; lighter shadows and chart fill. Light mode unchanged.

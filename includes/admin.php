@@ -491,6 +491,8 @@ function kf_admin_page() {
             <div class="notice notice-<?php echo ($_GET['kf_type'] ?? '') === 'error' ? 'error' : 'success'; ?> is-dismissible"><p><?php echo esc_html(rawurldecode(wp_unslash($_GET['kf_msg']))); ?></p></div>
         <?php endif; ?>
 
+        <?php kf_backup_nudge(); ?>
+
         <?php if ($settings['api_key'] === '') : ?>
             <div class="notice notice-warning"><p>Add your Twelve Data API key under <a href="<?php echo esc_url(admin_url('admin.php?page=kaiserfinance-settings')); ?>">Settings</a> so prices can update.</p></div>
         <?php elseif ($errors) : ?>
@@ -794,6 +796,9 @@ function kf_settings_page() {
     ?>
     <div class="wrap">
         <h1>Kai$erFinance settings</h1>
+        <?php if (!empty($_GET['kf_msg'])) : ?>
+            <div class="notice notice-<?php echo ($_GET['kf_type'] ?? '') === 'error' ? 'error' : 'success'; ?> is-dismissible"><p><?php echo esc_html(rawurldecode(wp_unslash($_GET['kf_msg']))); ?></p></div>
+        <?php endif; ?>
         <form method="post" action="options.php">
             <?php settings_fields('kf_settings_group'); ?>
             <table class="form-table" role="presentation">
@@ -854,12 +859,11 @@ function kf_settings_page() {
             <?php submit_button('Save settings'); ?>
         </form>
 
+        <?php kf_backup_section(); ?>
+
         <hr style="margin:32px 0">
         <h2>Reset ledger</h2>
-        <?php if (!empty($_GET['kf_msg'])) : ?>
-            <div class="notice notice-<?php echo ($_GET['kf_type'] ?? '') === 'error' ? 'error' : 'success'; ?>"><p><?php echo esc_html(rawurldecode(wp_unslash($_GET['kf_msg']))); ?></p></div>
-        <?php endif; ?>
-        <p>Deletes every trade, cash entry, asset and stored price, so the public page starts from zero. Settings and the API key are kept. This can't be undone.</p>
+        <p>Tip: <a href="#kf-backup">download a backup</a> first. Deletes every trade, cash entry, asset and stored price, so the public page starts from zero. Settings and the API key are kept. This can't be undone.</p>
 <?php
         global $wpdb;
         $n_trades = (int) $wpdb->get_var('SELECT COUNT(*) FROM ' . kf_table('trades'));
