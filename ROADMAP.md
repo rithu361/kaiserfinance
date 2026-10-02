@@ -17,6 +17,7 @@ Improvements are shipped one at a time, roughly hourly, each as its own version.
 - 2.10.2: benchmark lines glide instead of swapping charts
 - 2.11.0: header rehaul (display menu, login in footer)
 - 2.12.0: time ranges glide (zoom) instead of cross-fading
+- 2.12.1: calmer, warmer dark mode
 
 ## Next up (in rough order)
 1. **Customizable text:** headline, intro and disclaimer in English and German from Settings

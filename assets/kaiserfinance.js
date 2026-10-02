@@ -452,7 +452,7 @@
 
   /* ---------- theme: soft glow from the switch, then the new colours fade in ---------- */
 
-  var THEME_BG = { light: '#f3f4f1', dark: '#0e1217' }; // keep in sync with --site-bg in site.css
+  var THEME_BG = { light: '#f3f4f1', dark: '#141412' }; // keep in sync with --site-bg in site.css
   var washing = false;
   function setTheme(mode, origin) {
     var html = document.documentElement;

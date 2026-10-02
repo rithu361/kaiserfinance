@@ -13,11 +13,12 @@
   color-scheme: light;
 }
 html[data-theme="dark"] {
-  --site-bg: #0e1217;
-  --site-ink: #e7ebef;
-  --site-muted: #97a3b0;
-  --site-line: #26303b;
-  --site-gold: #e0ad4a;
+  /* Dark = the light page in lamplight: warm charcoal and paper-white ink, no blue, no neon. */
+  --site-bg: #141412;
+  --site-ink: #ebe7df;
+  --site-muted: #a39e94;
+  --site-line: #2d2b27;
+  --site-gold: #c8a25a;
   color-scheme: dark;
 }
 
@@ -207,7 +208,7 @@ html.kf-text-out .kf > *:not(.kf-top) { opacity: 0; transform: translateY(3px); 
   opacity: 0; transform: translateY(-4px); transform-origin: top right;
   transition: opacity .16s ease, transform .16s ease;
 }
-html[data-theme="dark"] .kf-menu-panel { box-shadow: 0 12px 32px rgba(0, 0, 0, .45); }
+html[data-theme="dark"] .kf-menu-panel { background: #1b1a17; box-shadow: 0 12px 32px rgba(0, 0, 0, .35); }
 .kf-menu-panel.kf-open { opacity: 1; transform: none; }
 .kf-menu-panel[hidden] { display: none; }
 .kf-menu-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }

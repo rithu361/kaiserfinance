@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.12.1
+- Calmer, more elegant dark mode: warm charcoal instead of blue-black, paper-white text, muted sage and terracotta for gains and losses instead of neon, softer gold and benchmark colours.
+- The comparison line is a quiet panel with a thin gold edge instead of a brown block; lighter shadows and chart fill. Light mode unchanged.
+
 ## 2.12.0
 - Time ranges glide: switching 7D/30D/90D/YTD/1Y/All zooms the chart smoothly to the new window (about half a second), with real data in every frame, instead of cross-fading two charts.
 - Tapping another range mid-glide carries on smoothly from where it is. With "reduce motion" on, it switches instantly.
