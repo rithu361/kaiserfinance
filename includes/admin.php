@@ -52,6 +52,74 @@ function kf_handle_reset() {
 }
 add_action('wp_ajax_kf_symbol_search', 'kf_ajax_symbol_search');
 add_action('wp_ajax_kf_last_price', 'kf_ajax_last_price');
+add_action('wp_ajax_kf_fx_rate', 'kf_ajax_fx_rate');
+
+/**
+ * USD per one unit of a currency: for today a live quote (cached 10 minutes), for a past day the
+ * stored close of that day (or the last one before). Falls back to the latest stored close.
+ * Returns array(rate, source) or null.
+ */
+function kf_usd_per($currency, $day) {
+    global $wpdb;
+    $fx = kf_fx_for($currency);
+    if ($fx === null) {
+        return array(1.0, 'fixed');
+    }
+    list($pair, $factor) = $fx;
+    $table = kf_table('prices');
+    $today = gmdate('Y-m-d');
+    if ($day < $today) {
+        $row = $wpdb->get_row($wpdb->prepare("SELECT day, close FROM $table WHERE symbol = %s AND day <= %s ORDER BY day DESC LIMIT 1", $pair, $day), ARRAY_A);
+        if ($row) {
+            return array((float) $row['close'] * $factor, 'close of ' . $row['day']);
+        }
+    }
+    $cache = 'kf_fx_live_' . md5($pair);
+    $live  = get_transient($cache);
+    if ($live === false) {
+        $live = 0;
+        $key  = kf_settings()['api_key'];
+        if ($key !== '') {
+            $res = wp_remote_get('https://api.twelvedata.com/price?' . http_build_query(array('symbol' => $pair, 'apikey' => $key)), array('timeout' => 10));
+            if (!is_wp_error($res)) {
+                $body = json_decode(wp_remote_retrieve_body($res), true);
+                if (is_array($body) && !empty($body['price']) && (float) $body['price'] > 0) {
+                    $live = (float) $body['price'];
+                }
+            }
+        }
+        set_transient($cache, $live, $live ? 10 * MINUTE_IN_SECONDS : MINUTE_IN_SECONDS);
+    }
+    if ($live) {
+        return array($live * $factor, 'live');
+    }
+    $row = $wpdb->get_row($wpdb->prepare("SELECT day, close FROM $table WHERE symbol = %s ORDER BY day DESC LIMIT 1", $pair), ARRAY_A);
+    return $row ? array((float) $row['close'] * $factor, 'close of ' . $row['day']) : null;
+}
+
+/** Exchange rate for the cash form: how much of `to` one unit of `from` buys. */
+function kf_ajax_fx_rate() {
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Not allowed', 403);
+    }
+    check_ajax_referer('kf_symbol_search', 'nonce');
+    $from = kf_normalize_currency(sanitize_text_field(wp_unslash($_GET['from'] ?? '')));
+    $to   = kf_normalize_currency(sanitize_text_field(wp_unslash($_GET['to'] ?? '')));
+    $day  = preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) ($_GET['day'] ?? '')) ? $_GET['day'] : gmdate('Y-m-d');
+    if (!preg_match('/^[A-Za-z]{3}$/', $from) || !preg_match('/^[A-Za-z]{3}$/', $to)) {
+        wp_send_json_success(null);
+    }
+    if ($from === $to) {
+        wp_send_json_success(array('rate' => 1, 'source' => 'same currency'));
+    }
+    $a = kf_usd_per($from, $day);
+    $b = kf_usd_per($to, $day);
+    if (!$a || !$b || $b[0] <= 0) {
+        wp_send_json_success(null);
+    }
+    $src = $a[1] === 'live' || $b[1] === 'live' ? 'live' : ($a[1] === 'fixed' ? $b[1] : $a[1]);
+    wp_send_json_success(array('rate' => $a[0] / $b[0], 'source' => $src, 'time' => gmdate('c')));
+}
 
 /** Current cash per currency for the trade form, or null in "trades only" mode. */
 function kf_cash_balances_for_js() {
@@ -700,6 +768,7 @@ function kf_admin_page() {
             </label>
             <label for="kf-c-amt2" class="kf-ex" hidden>Received amount
                 <input id="kf-c-amt2" name="amount2" inputmode="decimal" placeholder="12500">
+                <small id="kf-c-rate" class="description" aria-live="polite" style="display:block;margin-top:4px"></small>
             </label>
             <label for="kf-c-note">Note (private)
                 <input id="kf-c-note" name="note">

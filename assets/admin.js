@@ -176,3 +176,57 @@
   fields.symbol.addEventListener('input', function () { clearTimeout(symTimer); symTimer = setTimeout(loadLastPrice, 500); });
   if (fields.symbol.value) loadLastPrice(); else updateHint();
 })();
+
+/* Currency exchange in the cash form: "Received amount" fills itself from the exchange rate
+   (live for today, the day's close for a past date). Typing your own amount takes over;
+   "Use rate" puts the calculated amount back. */
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var type = $('kf-c-type'), cur = $('kf-c-cur'), amt = $('kf-c-amt'), cur2 = $('kf-c-cur2'), amt2 = $('kf-c-amt2'), date = $('kf-c-date'), hint = $('kf-c-rate');
+  if (!type || !amt2 || !hint || typeof KF_ADMIN === 'undefined') return;
+  var rate = null, source = '', manual = false, seq = 0, timer = null;
+  var num = function (v) { var n = parseFloat(String(v).replace(/['’\s]/g, '').replace(',', '.')); return isFinite(n) ? n : null; };
+  var fmtRate = function (r) { return r >= 100 ? r.toFixed(2) : r >= 1 ? r.toFixed(4) : r.toPrecision(4); };
+
+  function render() {
+    if (type.value !== 'exchange') { hint.textContent = ''; return; }
+    if (rate === null) { hint.textContent = cur.value === cur2.value ? '' : 'Looking up the rate…'; return; }
+    var text = '1 ' + cur.value + ' = ' + fmtRate(rate) + ' ' + cur2.value + ' (' + source + ')';
+    hint.innerHTML = '';
+    hint.appendChild(document.createTextNode(text));
+    var a = num(amt.value);
+    if (manual && a !== null) {
+      var want = Math.round(a * rate * 100) / 100, have = num(amt2.value);
+      if (have !== null && Math.abs(have - want) > 0.005) {
+        var eff = have / a;
+        hint.appendChild(document.createTextNode(' · your rate ' + fmtRate(eff) + ' (' + ((eff / rate - 1) * 100).toFixed(2) + '%) '));
+        var use = document.createElement('a');
+        use.href = '#'; use.textContent = 'Use rate';
+        use.addEventListener('click', function (e) { e.preventDefault(); manual = false; fill(); });
+        hint.appendChild(use);
+      }
+    }
+  }
+  function fill() {
+    var a = num(amt.value);
+    if (!manual && rate !== null && a !== null) amt2.value = (Math.round(a * rate * 100) / 100).toFixed(2);
+    render();
+  }
+  function load() {
+    if (type.value !== 'exchange' || !cur.value || !cur2.value) { render(); return; }
+    var mine = ++seq;
+    rate = null; render();
+    var url = KF_ADMIN.ajaxUrl + '?action=kf_fx_rate&nonce=' + encodeURIComponent(KF_ADMIN.nonce) +
+      '&from=' + encodeURIComponent(cur.value) + '&to=' + encodeURIComponent(cur2.value) + '&day=' + encodeURIComponent(date.value || '');
+    fetch(url, { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (res) {
+      if (mine !== seq) return;
+      if (res && res.success && res.data) { rate = +res.data.rate; source = res.data.source; fill(); }
+      else { hint.textContent = 'No rate available. Enter the received amount yourself.'; }
+    }).catch(function () { if (mine === seq) hint.textContent = 'Rate lookup failed. Enter the received amount yourself.'; });
+  }
+  var later = function () { clearTimeout(timer); timer = setTimeout(load, 250); };
+  [type, cur, cur2, date].forEach(function (n) { n.addEventListener('change', later); });
+  amt.addEventListener('input', fill);
+  amt2.addEventListener('input', function () { manual = amt2.value.trim() !== ''; render(); });
+  load();
+})();

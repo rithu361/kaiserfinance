@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.0
+- Currency exchange in the cash form: type the amount (e.g. 10 CHF) and "Received amount" fills itself at the current rate (e.g. 12.53 USD), shown as "1 CHF = 1.2534 USD (live)".
+- For a past date it uses that day's closing rate. Type your own received amount to override; the hint then shows your rate vs. the market and a "Use rate" link to go back.
+- Live rates are cached for 10 minutes, so the free API plan isn't strained.
+
 ## 3.0.1
 - No more gold: the $ in the wordmark is ink like the rest, the portfolio line is ink (beige-white in dark mode), small accents are olive.
 - New icon: an ink $ inside a thin ring on beige (simpler $ for the tiny browser-tab size).
