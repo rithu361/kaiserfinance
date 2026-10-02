@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.2
+- The logo is one colour: "KAI$ER FINANCE" all black in light mode, all white in dark mode (also in the link-preview image).
+- Icon in black and off-white: a black $ in a thin black ring.
+
 ## 3.1.1
 - Light mode back to the original colours (off-white page, white card, grey labels, original benchmark colours). The new wordmark, icon and header stay, still without gold. Dark mode unchanged.
 

@@ -248,7 +248,7 @@ html[data-theme="dark"] .kf-menu-panel { background: #292823; box-shadow: 0 12px
   text-transform: uppercase; letter-spacing: .07em; white-space: nowrap;
 }
 .kf-brand-mark { color: inherit; margin: 0 .01em; }
-.kf-brand-sub { margin-left: .22em; color: var(--site-olive); }
+.kf-brand-sub { margin-left: .22em; color: inherit; } /* logo in one colour */
 @media (max-width: 380px) { .kf-brand { font-size: 18px; letter-spacing: .05em; } }
 
 /* Thin rule under the header, like a magazine masthead. */
@@ -265,3 +265,5 @@ html[data-theme="dark"] .kf-menu-panel { background: #292823; box-shadow: 0 12px
 .kf-brand-mark { color: inherit !important; }
 .kf-site a:focus-visible, .kf-site button:focus-visible { outline-color: var(--site-olive); }
 .kf-powered:hover { color: var(--site-olive); }
+/* 3.1.2: the wordmark is one colour: black in light mode, white in dark mode. */
+.kf-brand, .kf-brand-mark, .kf-brand-sub { color: var(--site-ink) !important; }
