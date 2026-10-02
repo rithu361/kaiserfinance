@@ -125,6 +125,7 @@ function kf_refresh_prices() {
     $plan = array_slice($plan, 0, 7, true);
 
     $errors = array();
+    $ok     = 0; // series that answered properly (with or without new days)
     foreach ($plan as $key => $p) {
         $url = 'https://api.twelvedata.com/time_series?' . http_build_query(array_merge($p['params'], array(
             'interval'   => '1day',
@@ -144,12 +145,15 @@ function kf_refresh_prices() {
             // "No data is available on the specified dates" just means nothing new (e.g. a holiday).
             if (stripos($msg, 'no data is available') === false) {
                 $errors[] = $key . ': ' . $msg;
+            } else {
+                $ok++;
             }
             if (is_array($body) && isset($body['code']) && (int) $body['code'] === 429) {
                 break; // rate limited: stop, try again next run
             }
             continue;
         }
+        $ok++;
         foreach ($body['values'] as $v) {
             $close = isset($v['close']) ? (float) $v['close'] : 0;
             if ($close <= 0 || empty($v['datetime'])) {
@@ -172,6 +176,9 @@ function kf_refresh_prices() {
         }
     }
     update_option('kf_last_refresh', time(), false);
+    if ($ok > 0 || !$plan) {
+        update_option('kf_last_success', time(), false); // shown on the public page as "Prices as of"
+    }
     update_option('kf_refresh_soon', $missing ? 1 : 0, false);
     update_option('kf_last_errors', $errors, false);
     kf_flush_cache();

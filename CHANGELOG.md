@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.9.0
+- If prices are more than 6 hours old (for example the price service was unreachable), the public page says so: "Prices may be delayed: last updated 12 hours ago", in English and German.
+- "Prices as of" now shows the last successful update, not just the last attempt.
+
 ## 2.8.0
 - Phones: the "Returns by period" table turns on its side (one row per period), so it fits the screen without sideways scrolling, even with several benchmarks switched on.
 - Phones: tighter tables; the holdings table fits too, with the ticker under the name.

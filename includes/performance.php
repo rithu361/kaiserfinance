@@ -66,7 +66,7 @@ function kf_performance() {
         'pending'     => array(),
         'warnings'    => array(),
         'trades_only' => $trades_only,
-        'updated'     => (int) get_option('kf_last_refresh', 0),
+        'updated'     => (int) get_option('kf_last_success', get_option('kf_last_refresh', 0)),
     );
 
     if (!$trades && !$cash_rows) {

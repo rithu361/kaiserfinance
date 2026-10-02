@@ -43,6 +43,7 @@
       chartLabel: 'Portfolio return versus the benchmark over time',
       foot: 'Time-weighted return of the whole account, cash included. Deposits and withdrawals don\'t count as gains or losses. Benchmarks are tracked through funds (S&P 500 via SPY) over the same period. In CHF, the effect of the dollar against the franc is included.',
       asOf: 'Prices as of {d}.',
+      stale: 'Prices may be delayed: last updated {ago}.',
       empty: 'Performance appears here once the first trade is logged.',
       emptyChart: 'The chart fills in after the first full day of prices.',
       eyebrow: 'Spot portfolio · {ccy}',
@@ -87,6 +88,7 @@
       chartLabel: 'Portfolio-Rendite im Vergleich zum Index über die Zeit',
       foot: 'Zeitgewichtete Rendite des ganzen Kontos inklusive Liquidität. Ein- und Auszahlungen zählen nicht als Gewinn oder Verlust. Vergleichsindizes über Fonds (S&P 500 über SPY) im selben Zeitraum. In CHF ist der Effekt des Dollars gegenüber dem Franken enthalten.',
       asOf: 'Kurse vom {d}.',
+      stale: 'Kurse eventuell verzögert: zuletzt aktualisiert {ago}.',
       empty: 'Die Performance erscheint hier, sobald der erste Trade erfasst ist.',
       emptyChart: 'Der Chart erscheint nach dem ersten vollen Tag mit Kursen.',
       eyebrow: 'Spot-Portfolio · {ccy}',
@@ -449,6 +451,21 @@
     root.appendChild(stats);
     var verdict = el('div', { 'class': 'kf-verdict' });
     root.appendChild(verdict);
+
+    // Prices older than 6 hours (e.g. the price service was unreachable): say so instead of looking current.
+    var age = data.updated ? Date.now() / 1000 - data.updated : 0;
+    if (age > 6 * 3600) {
+      var ago;
+      try {
+        var rtf = new Intl.RelativeTimeFormat(t('locale'), { numeric: 'auto' });
+        ago = age < 48 * 3600 ? rtf.format(-Math.round(age / 3600), 'hour') : rtf.format(-Math.round(age / 86400), 'day');
+      } catch (e) {
+        ago = new Date(data.updated * 1000).toLocaleString(t('locale'), { dateStyle: 'medium', timeStyle: 'short' });
+      }
+      root.appendChild(el('p', { 'class': 'kf-stale', role: 'status' },
+        '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.5V8l2.5 1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' +
+        esc(t('stale').replace('{ago}', ago))));
+    }
 
     /* Returns within a window: rebase the cumulative series to the window's first day. */
     function rebase(pts) {
