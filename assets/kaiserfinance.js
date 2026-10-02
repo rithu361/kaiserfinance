@@ -565,26 +565,33 @@
     });
     show(currentBtn ? current : '0000', currentBtn || ranges.lastChild);
 
-    // Returns by period.
-    var head = '', rowP = '', rowsB = {};
-    selected.forEach(function (id) { rowsB[id] = ''; });
-    opts.forEach(function (o) {
-      var r = periodReturn(o[1]);
-      head += '<th scope="col">' + esc(t('ranges')[o[0]]) + '</th>';
-      var title = r ? '' : ' title="' + esc(t('noHistory')) + '"';
-      rowP += '<td class="kf-num ' + (r ? cls(r.p) : '') + '"' + title + '>' + (r ? pct(r.p) : '—') + '</td>';
-      selected.forEach(function (id) {
-        var v = r ? r.b[id] : null;
-        rowsB[id] += '<td class="kf-num ' + cls(v) + '"' + title + '>' + pct(v) + '</td>';
-      });
-    });
-    var bodyB = selected.map(function (id) {
-      return '<tr><th scope="row"><i style="background:' + benchVar(id) + '"></i>' + esc(bname(byId[id])) + '</th>' + rowsB[id] + '</tr>';
-    }).join('');
-    root.appendChild(el('div', { 'class': 'kf-periods' },
-      '<table><caption>' + esc(t('periods')) + '</caption><thead><tr><th></th>' + head + '</tr></thead><tbody>' +
-      '<tr><th scope="row"><i style="background:var(--kf-gold)"></i>' + esc(t('legendPortfolio')) + '</th>' + rowP + '</tr>' +
-      bodyB + '</tbody></table>'));
+    // Returns by period. Wide screens: one row per line, one column per period.
+    // Phones: turned on its side (one row per period), so it fits without sideways scrolling.
+    var lines = [{ name: t('legendPortfolio'), color: 'var(--kf-gold)', id: null }].concat(selected.map(function (id) {
+      return { name: bname(byId[id]), color: benchVar(id), id: id };
+    }));
+    var rets = opts.map(function (o) { return { label: t('ranges')[o[0]], r: periodReturn(o[1]) }; });
+    var cell = function (line, pr) {
+      var v = pr.r ? (line.id === null ? pr.r.p : pr.r.b[line.id]) : null;
+      var title = pr.r ? '' : ' title="' + esc(t('noHistory')) + '"';
+      return '<td class="kf-num ' + cls(v) + '"' + title + '>' + pct(v) + '</td>';
+    };
+    var swatch = function (line) { return '<i style="background:' + line.color + '"></i>'; };
+    var narrow = root.clientWidth > 0 && root.clientWidth < 560;
+    var thead, tbody;
+    if (narrow) {
+      thead = '<th></th>' + lines.map(function (l) { return '<th scope="col">' + swatch(l) + esc(l.name) + '</th>'; }).join('');
+      tbody = rets.map(function (pr) {
+        return '<tr><th scope="row">' + esc(pr.label) + '</th>' + lines.map(function (l) { return cell(l, pr); }).join('') + '</tr>';
+      }).join('');
+    } else {
+      thead = '<th></th>' + rets.map(function (pr) { return '<th scope="col">' + esc(pr.label) + '</th>'; }).join('');
+      tbody = lines.map(function (l) {
+        return '<tr><th scope="row">' + swatch(l) + esc(l.name) + '</th>' + rets.map(function (pr) { return cell(l, pr); }).join('') + '</tr>';
+      }).join('');
+    }
+    root.appendChild(el('div', { 'class': 'kf-periods' + (narrow ? ' kf-periods-narrow' + (lines.length > 3 ? ' kf-periods-many' : '') : '') },
+      '<table><caption>' + esc(t('periods')) + '</caption><thead><tr>' + thead + '</tr></thead><tbody>' + tbody + '</tbody></table>'));
 
     // Holdings with amounts, or the allocation bars.
     var nameOf = function (n) { return n === '__cash__' ? t('cash') : n; };

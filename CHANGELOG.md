@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.8.0
+- Phones: the "Returns by period" table turns on its side (one row per period), so it fits the screen without sideways scrolling, even with several benchmarks switched on.
+- Phones: tighter tables; the holdings table fits too, with the ticker under the name.
+
 ## 2.7.0
 - Faster homepage: the numbers are sent as compact JSON instead of an escaped HTML attribute, and chart lines use two decimals (page about 20% smaller now, more as history grows).
 - The script loads in parallel with the page (deferred, in the head).

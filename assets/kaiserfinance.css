@@ -127,3 +127,13 @@ html[data-theme="dark"] .kf { --kf-b-spy: #8fb0d8; --kf-b-qqq: #5cc8b8; --kf-b-u
 @media (prefers-reduced-motion: no-preference) { .kf-tv, .kf-tv svg { transition: color .15s ease, opacity .15s ease; } }
 /* Keep the space for the block while the script loads, so the footer doesn't jump. */
 .kf[data-kf]:not(.kf-ready) { min-height: 720px; }
+/* Tables on phones: tighter, so returns and holdings fit the screen. */
+.kf-periods-narrow thead th { white-space: normal; vertical-align: bottom; line-height: 1.25; }
+.kf-periods-narrow thead th i { display: block; margin: 0 0 6px auto; }
+@media (max-width: 560px) {
+  .kf-periods th, .kf-periods td { padding: 8px 6px; font-size: 13px; }
+  .kf-periods th:first-child, .kf-periods td:first-child { padding-left: 0; }
+  .kf-periods th:last-child, .kf-periods td:last-child { padding-right: 0; }
+  .kf-holdings tbody th small { display: block; margin: 2px 0 0; }
+}
+.kf-periods-many th, .kf-periods-many td { font-size: 12px; padding-left: 4px; padding-right: 4px; }
