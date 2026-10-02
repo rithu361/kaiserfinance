@@ -29,6 +29,7 @@ function kf_default_settings() {
         'github_repo'     => 'shokulab/kaiserfinance', // owner/name the plugin updates itself from
         'youtube_url'     => 'https://www.youtube.com/@KaiserFinance',     // shown as an icon in the header
         'instagram_url'   => 'https://www.instagram.com/kaiserfinance.ch/', // empty = hidden
+        'position_returns' => 1,      // 1 = show each position's return and opening date publicly
     );
 }
 

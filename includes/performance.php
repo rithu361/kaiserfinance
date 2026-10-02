@@ -210,12 +210,15 @@ function kf_performance() {
             $amt_native = $q * (float) $t['price'];
             $amt  = $amt_native * $rate($cur);
             if (!isset($pos[$ikey])) {
-                $pos[$ikey] = array('name' => $t['name'], 'qty' => 0.0, 'cost' => 0.0, 'cost_native' => 0.0);
+                $pos[$ikey] = array('name' => $t['name'], 'qty' => 0.0, 'cost' => 0.0, 'cost_native' => 0.0, 'opened' => null);
             }
             $pos[$ikey]['name'] = $t['name'];
             $last_trade_px[$ikey] = (float) $t['price'];
 
             if ($t['side'] === 'buy') {
+                if ($pos[$ikey]['qty'] <= 1e-9) {
+                    $pos[$ikey]['opened'] = $t['trade_date']; // a new position starts here
+                }
                 $pos[$ikey]['qty']         += $q;
                 $pos[$ikey]['cost']        += $amt;
                 $pos[$ikey]['cost_native'] += $amt_native;
@@ -229,6 +232,9 @@ function kf_performance() {
                 $pos[$ikey]['cost']        -= $pos[$ikey]['cost'] * $share;
                 $pos[$ikey]['cost_native'] -= $pos[$ikey]['cost_native'] * $share;
                 $pos[$ikey]['qty']         -= $q;
+                if ($pos[$ikey]['qty'] <= 1e-9) {
+                    $pos[$ikey]['opened'] = null; // fully sold: closed
+                }
                 if ($trades_only) {
                     $flow -= $amt;
                 } else {
@@ -321,6 +327,9 @@ function kf_performance() {
             'type'       => $inst ? (string) $inst['type'] : '',
             'qty'        => $p['qty'],
             'avg_cost'   => $p['qty'] ? $p['cost_native'] / $p['qty'] : 0, // instrument currency
+            'opened'     => $p['opened'],
+            // Return of the open position in its own currency (price vs. average cost).
+            'ret'        => ($price !== null && $p['qty'] && $p['cost_native'] > 0) ? ($price / ($p['cost_native'] / $p['qty']) - 1) * 100 : null,
             'price'      => $price,                                         // instrument currency
             'price_day'  => $price_day,
             'priced'     => $priced,
@@ -414,23 +423,35 @@ function kf_public_payload() {
     };
 
     // Holdings incl. cash, valued in USD.
+    $show_ret = !empty($settings['position_returns']);
     $parts = array();
     foreach ($perf['holdings'] as $h) {
         if ($h['value'] > 0) {
             $parts[] = array('name' => $h['name'], 'value' => $h['value'], 'qty' => $h['qty'], 'symbol' => $h['symbol'],
-                'tv' => $h['mode'] === 'auto' ? kf_tradingview_url($h['ikey'], $h['symbol'], $h['type'] ?? '') : '');
+                'tv' => $h['mode'] === 'auto' ? kf_tradingview_url($h['ikey'], $h['symbol'], $h['type'] ?? '') : '',
+                'ret' => $show_ret && $h['ret'] !== null ? round($h['ret'], 2) : null,
+                'opened' => $show_ret ? $h['opened'] : null,
+                'gain' => $h['unrealized']);
         }
     }
     if ($perf['totals'] && $perf['totals']['cash_usd'] > 0) {
-        $parts[] = array('name' => '__cash__', 'value' => $perf['totals']['cash_usd'], 'qty' => null, 'symbol' => '', 'tv' => '');
+        $parts[] = array('name' => '__cash__', 'value' => $perf['totals']['cash_usd'], 'qty' => null, 'symbol' => '', 'tv' => '', 'ret' => null, 'opened' => null, 'gain' => null);
     }
     $sum = array_sum(array_column($parts, 'value'));
-    usort($parts, function ($a, $b) { return $b['value'] <=> $a['value']; });
+    // Best performers first; positions without a return next (by size); cash last.
+    usort($parts, function ($a, $b) {
+        $ka = $a['name'] === '__cash__' ? 2 : ($a['ret'] === null ? 1 : 0);
+        $kb = $b['name'] === '__cash__' ? 2 : ($b['ret'] === null ? 1 : 0);
+        if ($ka !== $kb) {
+            return $ka <=> $kb;
+        }
+        return $ka === 0 ? $b['ret'] <=> $a['ret'] : $b['value'] <=> $a['value'];
+    });
 
     $level = $settings['public_amounts'];
     if ((!empty($settings['show_allocation']) || $level === 'holdings') && $sum > 0) {
         foreach ($parts as $p) {
-            $payload['allocation'][] = array('name' => $p['name'], 'pct' => round($p['value'] / $sum * 100, 1), 'tv' => $p['tv']);
+            $payload['allocation'][] = array('name' => $p['name'], 'pct' => round($p['value'] / $sum * 100, 1), 'tv' => $p['tv'], 'ret' => $p['ret'], 'opened' => $p['opened']);
         }
     }
 
@@ -450,6 +471,9 @@ function kf_public_payload() {
                     'name'   => $p['name'],
                     'symbol' => $p['symbol'],
                     'tv'     => $p['tv'],
+                    'ret'    => $p['ret'],
+                    'opened' => $p['opened'],
+                    'gain'   => $p['gain'] === null ? null : $both($p['gain']),
                     'qty'    => $p['qty'] === null ? null : round($p['qty'], 6),
                     'value'  => $both($p['value']),
                     'pct'    => $sum > 0 ? round($p['value'] / $sum * 100, 1) : 0,

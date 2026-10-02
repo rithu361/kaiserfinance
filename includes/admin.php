@@ -593,10 +593,10 @@ function kf_admin_page() {
 
         <h2>Holdings</h2>
         <table class="widefat striped">
-            <thead><tr><th>Asset</th><th class="num">Qty</th><th class="num">Avg cost</th><th class="num">Last price</th><th class="num">Value (USD)</th><th class="num">Unrealized (USD)</th></tr></thead>
+            <thead><tr><th>Asset</th><th class="num">Qty</th><th class="num">Avg cost</th><th class="num">Last price</th><th class="num">Value (USD)</th><th class="num">Unrealized (USD)</th><th class="num">Return</th><th>Opened</th></tr></thead>
             <tbody>
             <?php if (!$perf['holdings']) : ?>
-                <tr><td colspan="6">No open positions yet.</td></tr>
+                <tr><td colspan="8">No open positions yet.</td></tr>
             <?php else : foreach ($perf['holdings'] as $h) : ?>
                 <tr>
                     <td>
@@ -622,6 +622,8 @@ function kf_admin_page() {
                     </td>
                     <td class="num"><?php echo esc_html(kf_money($h['value'])); ?></td>
                     <td class="num <?php echo $h['unrealized'] < 0 ? 'down' : 'up'; ?>"><?php echo esc_html(kf_money($h['unrealized'])); ?></td>
+                    <td class="num <?php echo ($h['ret'] ?? 0) < 0 ? 'down' : 'up'; ?>"><?php echo $h['ret'] === null ? '—' : esc_html(kf_pct($h['ret'])); ?></td>
+                    <td><?php echo $h['opened'] ? esc_html(wp_date('j M Y', strtotime($h['opened'] . ' 12:00:00 UTC'))) . '<br><small>' . esc_html(human_time_diff(strtotime($h['opened'] . ' 12:00:00 UTC'))) . '</small>' : '—'; ?></td>
                 </tr>
             <?php endforeach; endif; ?>
             </tbody>
@@ -852,6 +854,7 @@ function kf_sanitize_settings($in) {
         $out[$key] = ($url !== '' && stripos((string) wp_parse_url($url, PHP_URL_HOST), $host) !== false) ? $url : '';
     }
     $out['show_allocation'] = empty($in['show_allocation']) ? 0 : 1;
+    $out['position_returns'] = empty($in['position_returns']) ? 0 : 1;
     $out['standalone']      = empty($in['standalone']) ? 0 : 1;
     kf_flush_cache();
     return $out;
@@ -894,6 +897,8 @@ function kf_settings_page() {
                     <td>
                         <label><input type="checkbox" name="kf_settings[show_allocation]" value="1" <?php checked($s['show_allocation'], 1); ?>> Show allocation in % (e.g. Gold 70%, Silver 30%)</label>
                         <p class="description">Always shown when "every holding" is selected above.</p>
+                        <label style="display:block;margin-top:10px"><input type="checkbox" name="kf_settings[position_returns]" value="1" <?php checked($s['position_returns'], 1); ?>> Show each position's return and the date it was opened</label>
+                        <p class="description">Visitors can roughly work out the average purchase price from a position's return. Untick to keep that private.</p>
                     </td>
                 </tr>
                 <tr>

@@ -27,17 +27,17 @@ Improvements are shipped one at a time, roughly hourly, each as its own version.
 - 3.1.3: logo spelled Kai$erFinance
 - 3.1.4: bold logo
 - 3.2.0: logo font Playfair Display Bold
+- 3.3.0: profit per position with tap-to-expand details
 
 ## Next up (in rough order)
-1. **Profit per position (requested):** holdings list shows each position's return since it was opened, best first. Tap a row to expand: opened date, holding period, gain in money (only if "every holding" is public), share of the portfolio. Purchase prices and individual trades stay private. Phones: compact rows, details on tap.
-2. **Customizable text:** headline, intro and disclaimer in English and German from Settings
-3. **Fees on trades:** optional fee field in the trade form, paid from cash
-4. **Edit cash entries,** not only delete them
-5. **Risk stats:** maximum drawdown and best/worst month
-6. **Monthly returns grid** (fund-factsheet style)
-7. **Accessibility pass:** keyboard and screen-reader support for chart, chips and switches
-8. **No-JavaScript fallback:** a plain table of returns
-9. **Automated checks:** PHP/JS syntax and maths tests run on every push (GitHub Actions)
+1. **Customizable text:** headline, intro and disclaimer in English and German from Settings
+2. **Fees on trades:** optional fee field in the trade form, paid from cash
+3. **Edit cash entries,** not only delete them
+4. **Risk stats:** maximum drawdown and best/worst month
+5. **Monthly returns grid** (fund-factsheet style)
+6. **Accessibility pass:** keyboard and screen-reader support for chart, chips and switches
+7. **No-JavaScript fallback:** a plain table of returns
+8. **Automated checks:** PHP/JS syntax and maths tests run on every push (GitHub Actions)
 
 ## Integrations: decisions
 - **TradingView widgets: no.** They load TradingView's script and cookies on every visit, slow the page, show TradingView's branding, and their prices can differ from ours (Twelve Data), which would confuse visitors. Instead: plain "open on TradingView" links per holding (2.6.0).

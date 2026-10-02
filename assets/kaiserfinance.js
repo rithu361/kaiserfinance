@@ -38,6 +38,12 @@
       netIn: 'Paid in (net)',
       invested: 'Invested (net)',
       holdings: 'Holdings',
+      returnCol: 'Return',
+      opened: 'Opened',
+      heldFor: 'Held for',
+      gainCol: 'Gain / loss',
+      tvChart: 'Chart on TradingView',
+      details: 'Details',
       qty: 'Quantity',
       valueCol: 'Value',
       weight: 'Weight',
@@ -84,6 +90,12 @@
       netIn: 'Eingezahlt (netto)',
       invested: 'Investiert (netto)',
       holdings: 'Positionen',
+      returnCol: 'Rendite',
+      opened: 'Eröffnet',
+      heldFor: 'Haltedauer',
+      gainCol: 'Gewinn / Verlust',
+      tvChart: 'Chart auf TradingView',
+      details: 'Details',
       qty: 'Menge',
       valueCol: 'Wert',
       weight: 'Anteil',
@@ -856,32 +868,61 @@
 
     // Holdings with amounts, or the allocation bars.
     var nameOf = function (n) { return n === '__cash__' ? t('cash') : n; };
-    // Name links to the TradingView chart when there is one (plain link, opens in a new tab).
-    var tvLink = function (label, url) {
-      if (!url || !/^https:\/\/www\.tradingview\.com\//.test(url)) return label;
-      var tip = esc(t('tvOpen'));
-      return '<a class="kf-tv" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer" title="' + tip + '">' + label +
-        '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5h5v5M9.5 2.5 3 9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-        '<span class="kf-sr">' + tip + '</span></a>';
-    };
-    if (am && am.holdings && am.holdings.length) {
-      var rows = am.holdings.map(function (h) {
-        return '<tr><th scope="row">' + tvLink(esc(nameOf(h.name)) + (h.symbol ? ' <small>' + esc(h.symbol) + '</small>' : ''), h.tv) + '</th>' +
-          '<td class="kf-num">' + esc(qtyFmt(h.qty)) + '</td>' +
-          '<td class="kf-num">' + money(h.value[ccy]) + '</td>' +
-          '<td class="kf-num">' + num(h.pct, 1) + '%</td></tr>';
-      }).join('');
-      root.appendChild(el('div', { 'class': 'kf-periods kf-holdings' },
-        '<table><caption>' + esc(t('holdings')) + '</caption><thead><tr><th></th><th scope="col">' + esc(t('qty')) + '</th><th scope="col">' +
-        esc(t('valueCol')) + '</th><th scope="col">' + esc(t('weight')) + '</th></tr></thead><tbody>' + rows + '</tbody></table>'));
-    } else if (data.allocation && data.allocation.length) {
-      var alloc = el('div', { 'class': 'kf-alloc' }, '<span class="kf-label">' + esc(t('allocation')) + '</span>');
-      data.allocation.forEach(function (a) {
-        alloc.insertAdjacentHTML('beforeend',
-          '<div class="kf-alloc-row"><span>' + tvLink(esc(nameOf(a.name)), a.tv) + '</span><div class="kf-alloc-track"><div class="kf-alloc-fill" style="width:' +
-          Math.max(0, Math.min(100, a.pct)) + '%"></div></div><span class="kf-num">' + num(a.pct, 1) + '%</span></div>');
+    // Positions: best performers first. Tap a row to open its details (opened, held for, quantity, gain).
+    var list = (am && am.holdings && am.holdings.length) ? am.holdings : (data.allocation && data.allocation.length ? data.allocation : null);
+    if (list) {
+      var withAmounts = list === (am && am.holdings);
+      var held = function (d) {
+        var days = Math.max(0, Math.round((Date.now() - new Date(d + 'T12:00:00Z').getTime()) / 86400000));
+        var u = days >= 365 ? [Math.floor(days / 365), 'year'] : days >= 60 ? [Math.round(days / 30.44), 'month'] : days >= 14 ? [Math.round(days / 7), 'week'] : [days, 'day'];
+        try {
+          return u[0].toLocaleString(t('locale'), { style: 'unit', unit: u[1], unitDisplay: 'long' });
+        } catch (e) { return days + ' d'; }
+      };
+      var box = el('div', { 'class': 'kf-pos' + (withAmounts ? '' : ' kf-pos-noval') }, '<span class="kf-label">' + esc(t(withAmounts ? 'holdings' : 'allocation')) + '</span>');
+      var head = el('div', { 'class': 'kf-pos-head', 'aria-hidden': 'true' },
+        '<span></span><span>' + esc(t('returnCol')) + '</span>' + (withAmounts ? '<span>' + esc(t('valueCol')) + '</span>' : '') + '<span>' + esc(t('weight')) + '</span><span></span>');
+      box.appendChild(head);
+      list.forEach(function (h, i) {
+        var cash = h.name === '__cash__';
+        var id = 'kf-pos-' + i + '-' + Math.random().toString(36).slice(2, 6);
+        var details = [];
+        if (h.opened) {
+          details.push([t('opened'), esc(fmtDate(h.opened))]);
+          details.push([t('heldFor'), esc(held(h.opened))]);
+        }
+        if (withAmounts && h.qty != null) details.push([t('qty'), esc(qtyFmt(h.qty))]);
+        if (withAmounts && h.gain) details.push([t('gainCol'), '<span class="' + cls(h.gain[ccy]) + '">' + money(h.gain[ccy], { sign: true }) + '</span>']);
+        var tv = h.tv && /^https:\/\/www\.tradingview\.com\//.test(h.tv) ? h.tv : '';
+        var expandable = details.length || tv;
+        var row = el('div', { 'class': 'kf-pos-row' + (cash ? ' kf-pos-cash' : '') });
+        var cells = '<span class="kf-pos-name">' + esc(nameOf(h.name)) + (h.symbol ? ' <small>' + esc(h.symbol) + '</small>' : '') + '</span>' +
+          '<span class="kf-num kf-pos-ret ' + (h.ret != null ? cls(h.ret) : '') + '">' + (h.ret != null ? pct(h.ret) : '') + '</span>' +
+          (withAmounts ? '<span class="kf-num">' + money(h.value[ccy]) + '</span>' : '') +
+          '<span class="kf-num">' + num(h.pct, 1) + '%</span>' +
+          '<span class="kf-pos-chev" aria-hidden="true">' + (expandable ? '<svg viewBox="0 0 12 12"><path d="M3 4.5 6 7.5 9 4.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '') + '</span>';
+        var top = expandable
+          ? el('button', { type: 'button', 'class': 'kf-pos-top', 'aria-expanded': 'false', 'aria-controls': id }, cells)
+          : el('div', { 'class': 'kf-pos-top' }, cells);
+        row.appendChild(top);
+        if (expandable) {
+          var more = el('div', { 'class': 'kf-pos-more', id: id, role: 'region', 'aria-label': nameOf(h.name) + ' — ' + t('details') },
+            '<div class="kf-pos-inner"><dl>' + details.map(function (d) { return '<div><dt>' + esc(d[0]) + '</dt><dd class="kf-num">' + d[1] + '</dd></div>'; }).join('') + '</dl>' +
+            (tv ? '<a class="kf-tv" href="' + esc(tv) + '" target="_blank" rel="noopener noreferrer">' + esc(t('tvChart')) +
+              '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5h5v5M9.5 2.5 3 9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>' : '') +
+            '</div>');
+          more.inert = true;
+          row.appendChild(more);
+          top.addEventListener('click', function () {
+            var open = top.getAttribute('aria-expanded') !== 'true';
+            top.setAttribute('aria-expanded', open ? 'true' : 'false');
+            row.classList.toggle('kf-open', open);
+            more.inert = !open;
+          });
+        }
+        box.appendChild(row);
       });
-      root.appendChild(alloc);
+      root.appendChild(box);
     }
 
     var foot = esc(t('foot'));
