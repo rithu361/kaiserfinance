@@ -6,10 +6,12 @@ WordPress plugin behind [kaiserfinance.ch](https://kaiserfinance.ch): a private 
 - Time-weighted return of the whole account, cash included
 - Public page: English/German, light/dark, benchmark chips, returns by period, optional amounts
 - Prices from Twelve Data (free plan), refreshed hourly on visits
-- Link-preview image, gold $ favicon
+- Link-preview image and favicon
 
 ## Updates
 
 Installed sites update themselves from this repo: when the `Version:` in `kaiserfinance.php` goes up on `main`, WordPress shows "Update available" under Plugins, or installs it automatically if auto-updates are on. The repo is set under Kai$erFinance → Settings → Updates from GitHub.
 
-Powered by [shokulab](https://shokulab.ch).
+Developed by [shokulab](https://shokulab.ch).
+
+**Note on design:** visual design choices from version 3.0.0 onward were made at the client's request.
