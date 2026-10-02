@@ -1,14 +1,14 @@
 /* Kai$erFinance standalone homepage.
  * Layout: one calm column — wordmark + language switch, headline, the performance block, a quiet footer.
- * The gold "$" in the wordmark is the one accent; everything else stays neutral.
+ * Beige, ink and olive only: no gold, the $ in the wordmark is ink like the rest.
  * Light by default; the header switch sets data-theme="dark" on <html>. */
 :root {
-  /* Light: sand beige, ink black, a deep gold for the $ and an olive for small labels. */
+  /* Light: sand beige, ink black and an olive for small labels. No gold. */
   --site-bg: #e0ddcd;
   --site-ink: #1d1d1b;
   --site-muted: #5f5b4c;
   --site-line: #c9c4ae;
-  --site-gold: #95700f;
+  --site-gold: #1d1d1b; /* accent = ink (no gold) */
   --site-olive: #6e6849;
   --site-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --site-serif: "Didot", "Bodoni 72", "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
@@ -20,7 +20,7 @@ html[data-theme="dark"] {
   --site-ink: #ebe7da;
   --site-muted: #aaa592;
   --site-line: #3a3832;
-  --site-gold: #cdab5f;
+  --site-gold: #ebe7da;
   --site-olive: #a9a07a;
   color-scheme: dark;
 }
@@ -247,7 +247,7 @@ html[data-theme="dark"] .kf-menu-panel { background: #292823; box-shadow: 0 12px
   font: 500 clamp(21px, 3.2vw, 30px)/1 var(--site-serif);
   text-transform: uppercase; letter-spacing: .07em; white-space: nowrap;
 }
-.kf-brand-mark { color: var(--site-gold); font-weight: 600; margin: 0 .01em; }
+.kf-brand-mark { color: inherit; margin: 0 .01em; }
 .kf-brand-sub { margin-left: .22em; color: var(--site-olive); }
 @media (max-width: 380px) { .kf-brand { font-size: 18px; letter-spacing: .05em; } }
 
@@ -261,3 +261,7 @@ html[data-theme="dark"] .kf-menu-panel { background: #292823; box-shadow: 0 12px
 .kf-menu-btn { border-radius: 4px; }
 .kf-social-link { border-radius: 4px; }
 .kf-site-foot { border-top-color: var(--site-line); }
+/* 3.0.1: no gold anywhere. */
+.kf-brand-mark { color: inherit !important; }
+.kf-site a:focus-visible, .kf-site button:focus-visible { outline-color: var(--site-olive); }
+.kf-powered:hover { color: var(--site-olive); }

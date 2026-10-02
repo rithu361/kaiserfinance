@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.1
+- No more gold: the $ in the wordmark is ink like the rest, the portfolio line is ink (beige-white in dark mode), small accents are olive.
+- New icon: an ink $ inside a thin ring on beige (simpler $ for the tiny browser-tab size).
+- Link-preview image: "KAI$ER FINANCE" in serif capitals, no gold.
+
 ## 3.0.0
 - New look: sand beige (#e0ddcd) as the main colour in light mode, warm graphite from the same beige in dark mode, ink-black text and an olive tone for small labels.
 - Wordmark reworked: centred serif capitals "KAI$ER FINANCE" with the gold $, a thin rule under the header.

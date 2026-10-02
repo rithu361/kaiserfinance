@@ -110,7 +110,7 @@ function kf_og_render() {
         return imagecolorallocate($im, hexdec(substr($h, 1, 2)), hexdec(substr($h, 3, 2)), hexdec(substr($h, 5, 2)));
     };
     $bg = $hex('#e0ddcd'); $ink = $hex('#1d1d1b'); $muted = $hex('#5f5b4c'); $line = $hex('#c9c4ae');
-    $gold = $hex('#95700f'); $index = $hex('#3f5878'); $up = $hex('#3b6b45'); $down = $hex('#9d3b2b'); $panel = $hex('#e8e5d8');
+    $gold = $hex('#1d1d1b'); $olive = $hex('#6e6849'); $index = $hex('#3f5878'); $up = $hex('#3b6b45'); $down = $hex('#9d3b2b'); $panel = $hex('#e8e5d8');
     imagefilledrectangle($im, 0, 0, $W, $H, $bg);
 
     $serif = KF_DIR . 'assets/fonts/kf-serif.ttf';
@@ -121,11 +121,10 @@ function kf_og_render() {
         return $box[2]; // right edge
     };
 
-    // Wordmark: Kai$erFinance with a gold $.
-    $x = 72; $y = 108;
-    $x = $text(40, $serif, $ink, $x, $y, 'Kai');
-    $x = $text(40, $serif, $gold, $x, $y, '$');
-    $text(40, $serif, $ink, $x, $y, 'erFinance');
+    // Wordmark, as on the site: KAI$ER in ink, FINANCE in olive, serif capitals.
+    $x = 72; $y = 104;
+    $x = $text(34, $serif, $ink, $x, $y, 'KAI$ER');
+    $text(34, $serif, $olive, $x + 14, $y, 'FINANCE');
     $text(17, $bold, $muted, 72, 158, 'SPOT PORTFOLIO VS ' . strtoupper(kf_og_summary()['bname']));
 
     $o = kf_og_summary();

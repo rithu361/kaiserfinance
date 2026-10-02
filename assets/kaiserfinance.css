@@ -5,7 +5,7 @@
   --kf-olive: #6e6849;
   --kf-line: #cdc8b3;
   --kf-panel: #e8e5d8;
-  --kf-gold: #95700f;
+  --kf-gold: #1d1d1b; /* the portfolio line and accents: ink, no gold */
   --kf-gold-soft: #dedac8;
   --kf-index: #3f5878;
   --kf-up: #3b6b45;
@@ -23,7 +23,7 @@
 @media (prefers-color-scheme: dark) {
   .kf.kf-auto-dark {
     --kf-ink: #ebe7da; --kf-muted: #aaa592; --kf-olive: #a9a07a; --kf-line: #3a3832; --kf-panel: #292823;
-    --kf-gold: #cdab5f; --kf-gold-soft: #302e28; --kf-index: #9fb0c2; --kf-up: #8fb596; --kf-down: #d38c78;
+    --kf-gold: #ebe7da; --kf-gold-soft: #302e28; --kf-index: #9fb0c2; --kf-up: #8fb596; --kf-down: #d38c78;
   }
 }
 .kf * { box-sizing: border-box; }
@@ -66,7 +66,7 @@
 .kf-periods i { display: inline-block; width: 12px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 8px; }
 html[data-theme="dark"] .kf {
   --kf-ink: #ebe7da; --kf-muted: #aaa592; --kf-olive: #a9a07a; --kf-line: #3a3832; --kf-panel: #292823;
-    --kf-gold: #cdab5f; --kf-gold-soft: #302e28; --kf-index: #9fb0c2; --kf-up: #8fb596; --kf-down: #d38c78;
+    --kf-gold: #ebe7da; --kf-gold-soft: #302e28; --kf-index: #9fb0c2; --kf-up: #8fb596; --kf-down: #d38c78;
 }
 .kf > * { transition: opacity .2s ease, transform .2s ease; }
 html.kf-text-out .kf > *:not(.kf-top) { opacity: 0; transform: translateY(3px); }
@@ -198,3 +198,10 @@ html[data-theme="dark"] .kf-alloc-fill { opacity: .85; }
 .kf-alloc-track { border-radius: 2px; background: var(--kf-gold-soft); }
 .kf-alloc-fill { background: var(--kf-gold); }
 html[data-theme="dark"] .kf-tip { background: #2f2d28; }
+/* 3.0.1: no gold. The portfolio line is ink; accents are olive. */
+.kf-verdict { box-shadow: inset 2px 0 0 var(--kf-olive); }
+.kf-stale svg { color: var(--kf-olive); }
+.kf-alloc-fill { background: var(--kf-olive); }
+.kf-chart .kf-area { fill-opacity: .05; }
+.kf-tv:hover, .kf-tv:hover svg { color: var(--kf-olive); }
+.kf-ranges button:focus-visible, .kf-chip:focus-visible, .kf-lang button:focus-visible, .kf-chart svg:focus-visible, .kf-tv:focus-visible, .kf-bench-pick select:focus-visible { outline-color: var(--kf-olive); }

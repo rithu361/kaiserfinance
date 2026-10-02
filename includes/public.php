@@ -16,7 +16,7 @@ add_action('template_redirect', 'kf_maybe_standalone', 1);
 add_filter('get_site_icon_url', 'kf_default_site_icon', 10, 2);
 
 /**
- * Use the plugin's gold $ as the site icon (browser tabs, bookmarks, phone home screens,
+ * Use the plugin's $ icon (ink on beige) as the site icon (browser tabs, bookmarks, phone home screens,
  * admin and login pages) unless one was set under Settings → General → Site Icon.
  */
 function kf_default_site_icon($url, $size) {
@@ -90,7 +90,7 @@ function kf_render_standalone() {
 <?php endif; ?>
 <?php if ($icon) : ?><link rel="icon" href="<?php echo esc_url($icon); ?>">
 <?php endif; ?>
-<?php if (!(int) get_option('site_icon')) : ?><link rel="icon" type="image/svg+xml" href="<?php echo esc_url(KF_URL . 'assets/icon.svg'); ?>">
+<?php if (!(int) get_option('site_icon')) : ?><link rel="icon" type="image/svg+xml" href="<?php echo esc_url(KF_URL . 'assets/favicon.svg'); ?>">
 <?php endif; ?>
 <link rel="apple-touch-icon" href="<?php echo esc_url(get_site_icon_url(180)); ?>">
 <?php echo kf_structured_data(); // phpcs:ignore WordPress.Security.EscapeOutput -- JSON-encoded ?>
