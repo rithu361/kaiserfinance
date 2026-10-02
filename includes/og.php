@@ -122,7 +122,8 @@ function kf_og_render() {
     };
 
     // Wordmark, as on the site: Kai$erFinance in one colour.
-    $text(40, $serif, $ink, 72, 108, 'Kai$erFinance');
+    $logo = is_readable(KF_DIR . 'assets/fonts/kf-logo.ttf') ? KF_DIR . 'assets/fonts/kf-logo.ttf' : $serif;
+    $text(42, $logo, $ink, 72, 108, 'Kai$erFinance');
     $text(17, $bold, $muted, 72, 158, 'SPOT PORTFOLIO VS ' . strtoupper(kf_og_summary()['bname']));
 
     $o = kf_og_summary();

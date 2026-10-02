@@ -95,6 +95,7 @@ function kf_render_standalone() {
 <link rel="apple-touch-icon" href="<?php echo esc_url(get_site_icon_url(180)); ?>">
 <?php echo kf_structured_data(); // phpcs:ignore WordPress.Security.EscapeOutput -- JSON-encoded ?>
 <link rel="stylesheet" href="<?php echo $css; ?>">
+<link rel="preload" href="<?php echo esc_url(KF_URL . 'assets/fonts/kf-logo.woff2'); ?>" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="<?php echo $site_css; ?>">
 <script src="<?php echo $js; ?>" defer></script>
 </head>

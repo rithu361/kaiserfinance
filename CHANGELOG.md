@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.2.0
+- Logo set in Playfair Display Bold, stored with the plugin (no Google request), so it looks the same on every device. Also used in the link-preview image.
+
 ## 3.1.4
 - Logo in bold.
 
