@@ -17,3 +17,5 @@ Installed sites update themselves from this repo: when the `Version:` in `kaiser
 Kai$erFinance was developed by [shokulab](https://shokulab.ch), who wrote the plugin: the ledger, the performance calculations, the public page, the updater and the backups.
 
 In October 2026 the repository was transferred from `shokulab/kaiserfinance` to [`rithu361/kaiserfinance`](https://github.com/rithu361/kaiserfinance). shokulab does not stand behind the visual design choices made from version 3.0.0 onward; they were made at the client's request. For that reason the "Powered by shokulab" credit was removed from the site (3.3.1) and the project now lives under the client's account.
+
+shokulab's name, logo and links must not be added to the site; see `AGENTS.md` (also read by AI coding tools).
