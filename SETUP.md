@@ -6,7 +6,7 @@ The plugin runs on the WordPress at https://kaiserfinance.ch (TrueNAS app `kaise
 - [x] WordPress installed, address set to https://kaiserfinance.ch
 - [x] Plugin installed, homepage drawn by the plugin (Settings → Homepage design)
 - [x] Cloudflare Access with email code on `/wp-admin` (login page branded "shokulab")
-- [x] Updates from GitHub: `shokulab/kaiserfinance`
+- [x] Updates from GitHub: `rithu361/kaiserfinance`
 - [ ] Twelve Data API key: Kai$erFinance → Settings
 - [ ] Cloudflare Access: also protect `wp-login.php`
 - [ ] Plugins → Kai$erFinance → **Enable auto-updates**
@@ -36,7 +36,7 @@ Metals are per troy ounce (1 kg = 32.1507 oz).
 - If Cloudflare caches pages, bypass the cache for the homepage.
 
 ## Updates
-- New versions are pushed to https://github.com/shokulab/kaiserfinance.
+- New versions are pushed to https://github.com/rithu361/kaiserfinance.
 - WordPress checks about twice a day; with auto-updates on it installs them by itself.
 - In a hurry: Dashboard → Updates → **Check again** → update.
 - Ledger data and settings live in the database and are never touched by updates.

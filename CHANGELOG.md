@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.3.2
+- The repository moved from shokulab/kaiserfinance to rithu361/kaiserfinance. Updates now come from the new address; sites still set to the old one are pointed there automatically.
+
 ## 3.3.1
 - Removed the "Powered by shokulab" credit from the homepage footer and the link-preview image.
 

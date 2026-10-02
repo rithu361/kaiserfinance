@@ -26,7 +26,7 @@ function kf_default_settings() {
         'show_allocation' => 0,       // 1 = show allocation in % on the public page
         'standalone'      => 1,       // 1 = the plugin draws the whole homepage (no theme)
         'public_amounts'  => 'none',  // none | totals | holdings: what real amounts the public page shows
-        'github_repo'     => 'shokulab/kaiserfinance', // owner/name the plugin updates itself from
+        'github_repo'     => 'rithu361/kaiserfinance', // owner/name the plugin updates itself from (moved from shokulab/kaiserfinance)
         'youtube_url'     => 'https://www.youtube.com/@KaiserFinance',     // shown as an icon in the header
         'instagram_url'   => 'https://www.instagram.com/kaiserfinance.ch/', // empty = hidden
         'position_returns' => 1,      // 1 = show each position's return and opening date publicly

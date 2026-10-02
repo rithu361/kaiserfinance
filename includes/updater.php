@@ -20,6 +20,9 @@ function kf_updater_repo() {
     if ($repo === '' || $repo === null) {
         $repo = kf_default_settings()['github_repo']; // an empty saved field means "use the default"
     }
+    if (strcasecmp((string) $repo, 'shokulab/kaiserfinance') === 0) {
+        $repo = 'rithu361/kaiserfinance'; // the repo was transferred; old saved setting points to the new home
+    }
     return preg_match('#^[\w.-]+/[\w.-]+$#', (string) $repo) ? $repo : '';
 }
 
