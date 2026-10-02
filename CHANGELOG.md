@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.9.2
+- Phones: the footer is centred (copyright, YouTube/Instagram, disclaimer, "Powered by shokulab"). Desktop unchanged.
+
 ## 2.9.1
 - Phones: the chart tooltip now closes when you tap anywhere outside the chart (it used to stay open). Tap the chart again to bring it back.
 

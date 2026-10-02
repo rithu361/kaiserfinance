@@ -11,6 +11,7 @@ Improvements are shipped one at a time, roughly hourly, each as its own version.
 - 2.8.0: tables fit on phones
 - 2.9.0: "prices may be delayed" note
 - 2.9.1: tooltip closes when tapping outside the chart (phones)
+- 2.9.2: centred footer on phones
 
 ## Next up (in rough order)
 1. **Smoother chart (requested):** soft cross-fade on range change, benchmark lines fade in/out, one-time draw-in on load; tooltip stays instant; nothing moves with reduced motion
