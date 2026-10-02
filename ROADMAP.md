@@ -28,6 +28,7 @@ Improvements are shipped one at a time, roughly hourly, each as its own version.
 - 3.1.4: bold logo
 - 3.2.0: logo font Playfair Display Bold
 - 3.3.0: profit per position with tap-to-expand details
+- 3.3.1: "Powered by shokulab" removed
 
 ## Next up (in rough order)
 1. **Customizable text:** headline, intro and disclaimer in English and German from Settings

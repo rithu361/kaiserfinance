@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.3.1
+- Removed the "Powered by shokulab" credit from the homepage footer and the link-preview image.
+
 ## 3.3.0
 - Positions list: each position shows its return since it was opened, best first (cash last).
 - Tap or click a position to open its details: opened date, holding period, and (if "every holding" is public) quantity and gain/loss, plus the TradingView link. Opens and closes softly.

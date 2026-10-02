@@ -925,7 +925,7 @@ function kf_settings_page() {
                 <tr>
                     <th scope="row">Homepage design</th>
                     <td>
-                        <label><input type="checkbox" name="kf_settings[standalone]" value="1" <?php checked($s['standalone'], 1); ?>> Draw the homepage with Kai$erFinance's own design (header, chart, "Powered by shokulab" footer), without the theme</label>
+                        <label><input type="checkbox" name="kf_settings[standalone]" value="1" <?php checked($s['standalone'], 1); ?>> Draw the homepage with Kai$erFinance's own design (header, chart, footer), without the theme</label>
                         <p class="description">Untick to show the homepage through the WordPress theme instead.</p>
                     </td>
                 </tr>

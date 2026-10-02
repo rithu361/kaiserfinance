@@ -120,7 +120,6 @@ function kf_render_standalone() {
   <span class="kf-site-note" data-kf-t="disclaimer">Past performance is no guarantee of future results. Not investment advice.</span>
   <span class="kf-foot-end">
     <a class="kf-login" href="<?php echo esc_url(admin_url('admin.php?page=kaiserfinance')); ?>" data-kf-t="login">Log in</a>
-    <a class="kf-powered" href="https://shokulab.ch" target="_blank" rel="noopener">Powered by shokulab</a>
   </span>
 </footer>
 </body>

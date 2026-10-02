@@ -181,9 +181,6 @@ function kf_og_render() {
     imageline($im, 72, 520, $W - 72, 520, $line);
     $host = wp_parse_url(home_url('/'), PHP_URL_HOST);
     $text(22, $bold, $ink, 72, 568, $host);
-    $right = 'Powered by shokulab';
-    $box = imagettfbbox(18, 0, $bold, $right);
-    $text(18, $bold, $muted, $W - 72 - ($box[2] - $box[0]), 566, $right);
 
     ob_start();
     imagepng($im, null, 6);
