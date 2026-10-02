@@ -15,15 +15,16 @@ Improvements are shipped one at a time, roughly hourly, each as its own version.
 
 ## Next up (in rough order)
 1. **Smoother chart (requested):** soft cross-fade on range change, benchmark lines fade in/out, one-time draw-in on load; tooltip stays instant; nothing moves with reduced motion
-2. **Customizable text:** headline, intro and disclaimer in English and German from Settings
-3. **Fees on trades:** optional fee field in the trade form, paid from cash
-4. **Edit cash entries,** not only delete them
-5. **CSV export** of trades and cash (backup) from the ledger
-6. **Risk stats:** maximum drawdown and best/worst month
-7. **Monthly returns grid** (fund-factsheet style)
-8. **Accessibility pass:** keyboard and screen-reader support for chart, chips and switches
-9. **No-JavaScript fallback:** a plain table of returns
-10. **Automated checks:** PHP/JS syntax and maths tests run on every push (GitHub Actions)
+2. **Header rehaul (requested):** header is just the wordmark plus one small "display" button that opens a panel with Light/Dark, EN/DE and USD/CHF; the login moves to a quiet link in the footer. Phones: one tidy row, no wrapping.
+3. **Customizable text:** headline, intro and disclaimer in English and German from Settings
+4. **Fees on trades:** optional fee field in the trade form, paid from cash
+5. **Edit cash entries,** not only delete them
+6. **CSV export** of trades and cash (backup) from the ledger
+7. **Risk stats:** maximum drawdown and best/worst month
+8. **Monthly returns grid** (fund-factsheet style)
+9. **Accessibility pass:** keyboard and screen-reader support for chart, chips and switches
+10. **No-JavaScript fallback:** a plain table of returns
+11. **Automated checks:** PHP/JS syntax and maths tests run on every push (GitHub Actions)
 
 ## Integrations: decisions
 - **TradingView widgets: no.** They load TradingView's script and cookies on every visit, slow the page, show TradingView's branding, and their prices can differ from ours (Twelve Data), which would confuse visitors. Instead: plain "open on TradingView" links per holding (2.6.0).
