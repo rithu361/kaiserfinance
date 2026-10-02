@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.10.0
+- Smoother chart: switching the time range or a benchmark cross-fades softly (about a quarter second) instead of snapping.
+- On first view the lines draw in once from left to right; the shaded area and end dots fade in after.
+- The tooltip stays instant. With "reduce motion" switched on in the device settings, nothing moves.
+
 ## 2.9.2
 - Phones: the footer is centred (copyright, YouTube/Instagram, disclaimer, "Powered by shokulab"). Desktop unchanged.
 

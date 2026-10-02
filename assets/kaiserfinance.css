@@ -140,3 +140,18 @@ html[data-theme="dark"] .kf { --kf-b-spy: #8fb0d8; --kf-b-qqq: #5cc8b8; --kf-b-u
 /* "Prices may be delayed" note. */
 .kf-stale { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 13px; color: var(--kf-muted); }
 .kf-stale svg { width: 15px; height: 15px; flex: none; color: var(--kf-gold); }
+/* Chart motion: soft and short. Range and benchmark changes cross-fade; the first view draws in once. */
+.kf-chart .kf-ghost { position: absolute; top: 0; left: 0; width: 100%; pointer-events: none; animation: kf-fade-out .26s ease forwards; }
+.kf-chart .kf-fade-in { animation: kf-fade-in .26s ease both; }
+.kf-chart .kf-draw .kf-ln { stroke-dasharray: 1; stroke-dashoffset: 1; animation: kf-draw .75s cubic-bezier(.33, .7, .3, 1) forwards; }
+.kf-chart .kf-draw .kf-area, .kf-chart .kf-draw .kf-end { opacity: 0; animation: kf-show .45s ease .5s forwards; }
+@keyframes kf-fade-in { from { opacity: 0; } }
+@keyframes kf-fade-out { to { opacity: 0; } }
+@keyframes kf-draw { to { stroke-dashoffset: 0; } }
+@keyframes kf-show { to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .kf-chart .kf-ghost { display: none; }
+  .kf-chart svg, .kf-chart svg * { animation: none !important; }
+  .kf-chart .kf-draw .kf-ln { stroke-dashoffset: 0; }
+  .kf-chart .kf-draw .kf-area, .kf-chart .kf-draw .kf-end { opacity: 1; }
+}

@@ -162,7 +162,10 @@
 
   /* pts: [{d, p, b: {id: value}}]; ids: benchmark ids to draw. */
   function benchVar(id) { return 'var(--kf-b-' + id.split('/')[0].toLowerCase() + ', var(--kf-index))'; }
-  function drawChart(box, pts, ids, names) {
+  /* anim: 'draw' = lines draw in once (first view), 'fade' = soft cross-fade from the previous chart. */
+  function drawChart(box, pts, ids, names, anim, ghost) {
+    if (reducedMotion()) anim = null;
+    if (anim === 'fade' && !ghost) ghost = box.querySelector('svg');
     if (pts.length < 2) {
       box.innerHTML = '<p class="kf-empty">' + esc(t('emptyChart')) + '</p>';
       return;
@@ -204,19 +207,31 @@
     pts.forEach(function (p, i) { if (p.p != null) { if (first < 0) first = i; lastI = i; } });
     if (first >= 0) {
       var area = path(getP) + 'L' + x(lastI).toFixed(1) + ',' + y(0) + 'L' + x(first).toFixed(1) + ',' + y(0) + 'Z';
-      svg += '<path d="' + area + '" fill="var(--kf-gold)" fill-opacity="0.10"/>';
+      svg += '<path class="kf-area" d="' + area + '" fill="var(--kf-gold)" fill-opacity="0.10"/>';
     }
     var last = pts[n - 1];
     ids.forEach(function (id) {
-      svg += '<path d="' + path(function (p) { return p.b[id]; }) + '" fill="none" stroke="' + benchVar(id) + '" stroke-width="2" stroke-linejoin="round"/>';
-      if (last.b[id] != null) svg += '<circle cx="' + x(n - 1) + '" cy="' + y(last.b[id]) + '" r="4" fill="' + benchVar(id) + '"/>';
+      svg += '<path class="kf-ln" pathLength="1" d="' + path(function (p) { return p.b[id]; }) + '" fill="none" stroke="' + benchVar(id) + '" stroke-width="2" stroke-linejoin="round"/>';
+      if (last.b[id] != null) svg += '<circle class="kf-end" cx="' + x(n - 1) + '" cy="' + y(last.b[id]) + '" r="4" fill="' + benchVar(id) + '"/>';
     });
-    svg += '<path d="' + path(getP) + '" fill="none" stroke="var(--kf-gold)" stroke-width="2.6" stroke-linejoin="round"/>';
-    if (last.p != null) svg += '<circle cx="' + x(n - 1) + '" cy="' + y(last.p) + '" r="4.5" fill="var(--kf-gold)"/>';
+    svg += '<path class="kf-ln" pathLength="1" d="' + path(getP) + '" fill="none" stroke="var(--kf-gold)" stroke-width="2.6" stroke-linejoin="round"/>';
+    if (last.p != null) svg += '<circle class="kf-end" cx="' + x(n - 1) + '" cy="' + y(last.p) + '" r="4.5" fill="var(--kf-gold)"/>';
     svg += '<text x="' + L + '" y="' + (H - 8) + '">' + esc(fmtDate(pts[0].d)) + '</text>';
     svg += '<text x="' + (W - R) + '" y="' + (H - 8) + '" text-anchor="end">' + esc(fmtDate(last.d)) + '</text>';
     svg += '</svg>';
     box.innerHTML = svg;
+    var fresh = box.querySelector('svg');
+    if (anim === 'draw') {
+      fresh.classList.add('kf-draw');
+    } else if (anim === 'fade' && ghost && ghost !== fresh) {
+      // The old chart stays on top for a moment and fades out while the new one fades in.
+      ghost.classList.add('kf-ghost');
+      ghost.removeAttribute('tabindex');
+      ghost.setAttribute('aria-hidden', 'true');
+      fresh.classList.add('kf-fade-in');
+      box.appendChild(ghost);
+      setTimeout(function () { if (ghost.parentNode) ghost.parentNode.removeChild(ghost); }, 320);
+    }
     attachTooltip(box, pts, ids, names || {}, { W: W, H: H, L: L, R: R, T: T, B: B, x: x, y: y });
   }
 
@@ -536,6 +551,7 @@
           var at = now.indexOf(b.id);
           if (at >= 0) now.splice(at, 1); else now.push(b.id);
           store('kf-benches', JSON.stringify(now));
+          root._kfGhost = root.querySelector('.kf-chart svg'); // cross-fade from the current chart
           rerender();
         });
         chips.appendChild(chip);
@@ -580,7 +596,11 @@
       var view = whole ? series : rebase(pts);
       var names = {};
       selected.forEach(function (id) { names[id] = bname(byId[id]); });
-      drawChart(chart, view, selected, names);
+      var anim = btn && btn._kfClicked ? 'fade' : root._kfGhost ? 'fade' : root._kfDrawn ? null : 'draw';
+      drawChart(chart, view, selected, names, anim, root._kfGhost);
+      root._kfGhost = null;
+      root._kfDrawn = true;
+      if (btn) btn._kfClicked = false;
       updateStats(view, whole);
       Array.prototype.forEach.call(ranges.children, function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
       root.setAttribute('data-kf-range', from);
@@ -589,7 +609,7 @@
     var currentBtn = null;
     opts.forEach(function (o) {
       var b = el('button', { type: 'button', 'aria-pressed': 'false' }, esc(t('ranges')[o[0]]));
-      b.addEventListener('click', function () { show(o[1], b); });
+      b.addEventListener('click', function () { b._kfClicked = true; show(o[1], b); });
       ranges.appendChild(b);
       if (o[1] === current) currentBtn = b;
     });
