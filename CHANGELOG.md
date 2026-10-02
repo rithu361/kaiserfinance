@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.1.1
+- Light mode back to the original colours (off-white page, white card, grey labels, original benchmark colours). The new wordmark, icon and header stay, still without gold. Dark mode unchanged.
+
 ## 3.1.0
 - Currency exchange in the cash form: type the amount (e.g. 10 CHF) and "Received amount" fills itself at the current rate (e.g. 12.53 USD), shown as "1 CHF = 1.2534 USD (live)".
 - For a past date it uses that day's closing rate. Type your own received amount to override; the hint then shows your rate vs. the market and a "Use rate" link to go back.

@@ -109,8 +109,8 @@ function kf_og_render() {
     $hex = function ($h) use ($im) {
         return imagecolorallocate($im, hexdec(substr($h, 1, 2)), hexdec(substr($h, 3, 2)), hexdec(substr($h, 5, 2)));
     };
-    $bg = $hex('#e0ddcd'); $ink = $hex('#1d1d1b'); $muted = $hex('#5f5b4c'); $line = $hex('#c9c4ae');
-    $gold = $hex('#1d1d1b'); $olive = $hex('#6e6849'); $index = $hex('#3f5878'); $up = $hex('#3b6b45'); $down = $hex('#9d3b2b'); $panel = $hex('#e8e5d8');
+    $bg = $hex('#f3f4f1'); $ink = $hex('#161b22'); $muted = $hex('#5b6470'); $line = $hex('#d9ddd6');
+    $gold = $hex('#161b22'); $olive = $hex('#5b6470'); $index = $hex('#3d5a80'); $up = $hex('#1d7a4f'); $down = $hex('#b3392f'); $panel = $hex('#ffffff');
     imagefilledrectangle($im, 0, 0, $W, $H, $bg);
 
     $serif = KF_DIR . 'assets/fonts/kf-serif.ttf';

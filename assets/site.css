@@ -3,13 +3,13 @@
  * Beige, ink and olive only: no gold, the $ in the wordmark is ink like the rest.
  * Light by default; the header switch sets data-theme="dark" on <html>. */
 :root {
-  /* Light: sand beige, ink black and an olive for small labels. No gold. */
-  --site-bg: #e0ddcd;
-  --site-ink: #1d1d1b;
-  --site-muted: #5f5b4c;
-  --site-line: #c9c4ae;
-  --site-gold: #1d1d1b; /* accent = ink (no gold) */
-  --site-olive: #6e6849;
+  /* Light: the original off-white page; accents are ink (no gold). */
+  --site-bg: #f3f4f1;
+  --site-ink: #161b22;
+  --site-muted: #5b6470;
+  --site-line: #d9ddd6;
+  --site-gold: #161b22;
+  --site-olive: #5b6470;
   --site-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --site-serif: "Didot", "Bodoni 72", "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
   color-scheme: light;
@@ -257,7 +257,7 @@ html[data-theme="dark"] .kf-menu-panel { background: #292823; box-shadow: 0 12px
 
 .kf-eyebrow { color: var(--site-olive); letter-spacing: .14em; }
 .kf-site h1 { font-weight: 400; letter-spacing: -0.01em; }
-.kf-menu-panel { background: #e8e5d8; border-radius: 6px; }
+.kf-menu-panel { background: #ffffff; border-radius: 6px; }
 .kf-menu-btn { border-radius: 4px; }
 .kf-social-link { border-radius: 4px; }
 .kf-site-foot { border-top-color: var(--site-line); }

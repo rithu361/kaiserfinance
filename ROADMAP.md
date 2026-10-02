@@ -22,6 +22,7 @@ Improvements are shipped one at a time, roughly hourly, each as its own version.
 - 3.0.0: beige design overhaul, new wordmark and icon
 - 3.0.1: gold removed, new ink icon
 - 3.1.0: exchange rate auto-fill in the cash form
+- 3.1.1: light mode colours back to the original, new logo kept
 
 ## Next up (in rough order)
 1. **Profit per position (requested):** holdings list shows each position's return since it was opened, best first. Tap a row to expand: opened date, holding period, gain in money (only if "every holding" is public), share of the portfolio. Purchase prices and individual trades stay private. Phones: compact rows, details on tap.
