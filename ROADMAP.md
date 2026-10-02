@@ -7,9 +7,10 @@ Improvements are shipped one at a time, roughly hourly, each as its own version.
 - 2.4.0: chart tooltip (hover, tap, arrow keys)
 - 2.5.0: YouTube and Instagram links
 - 2.6.0: TradingView chart links on holdings
+- 2.7.0: speed (compact data, deferred script, no layout jump)
 
 ## Next up (in rough order)
-1. **Speed:** load the script deferred, cache the public numbers as one blob, lighter first paint
+1. **German number format in the verdict line** ("5,86 Prozentpunkte", not "5.86") and other small fixes
 2. **"Prices delayed" note** on the public page if prices are more than 6 hours old
 3. **Customizable text:** headline, intro and disclaimer in English and German from Settings
 4. **Fees on trades:** optional fee field in the trade form, paid from cash

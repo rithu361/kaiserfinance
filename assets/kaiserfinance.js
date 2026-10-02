@@ -382,8 +382,13 @@
   /* ---------- the block ---------- */
 
   function render(root) {
-    var data;
-    try { data = JSON.parse(root.getAttribute('data-kf') || '{}'); } catch (e) { data = {}; }
+    // The numbers come in a <script type="application/json"> inside the block (older pages: the data-kf attribute).
+    // Read once and kept, because the block redraws itself on resize, language and currency changes.
+    if (!root._kfData) {
+      var src = root.querySelector('script.kf-data');
+      try { root._kfData = JSON.parse((src ? src.textContent : root.getAttribute('data-kf')) || '{}'); } catch (e) { root._kfData = {}; }
+    }
+    var data = root._kfData;
     var dates = data.dates || [];
     var hasChf = !!(data.port && data.port.CHF);
     if (!hasChf) ccy = 'USD';
@@ -399,6 +404,7 @@
     var bname = function (b) { return b ? b[lang] : ''; };
 
     root.innerHTML = '';
+    root.classList.add('kf-ready');
     root.setAttribute('lang', lang);
     var rerender = function () { render(root); };
     applyChrome();

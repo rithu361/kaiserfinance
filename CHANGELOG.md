@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.7.0
+- Faster homepage: the numbers are sent as compact JSON instead of an escaped HTML attribute, and chart lines use two decimals (page about 20% smaller now, more as history grows).
+- The script loads in parallel with the page (deferred, in the head).
+- Space for the block is reserved while it loads, so the footer no longer jumps.
+- Back/forward navigation can show the page instantly; it still asks for fresh prices on every visit.
+
 ## 2.6.0
 - Holdings and allocation on the public page link to each instrument's chart on TradingView (new tab, small arrow icon).
 - Plain links only: no TradingView script or cookies on the site. Cash and manually priced items have no link.

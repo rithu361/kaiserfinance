@@ -125,3 +125,5 @@ html[data-theme="dark"] .kf { --kf-b-spy: #8fb0d8; --kf-b-qqq: #5cc8b8; --kf-b-u
 .kf-tv:focus-visible { outline: 2px solid var(--kf-gold); outline-offset: 2px; border-radius: 3px; }
 .kf-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @media (prefers-reduced-motion: no-preference) { .kf-tv, .kf-tv svg { transition: color .15s ease, opacity .15s ease; } }
+/* Keep the space for the block while the script loads, so the footer doesn't jump. */
+.kf[data-kf]:not(.kf-ready) { min-height: 720px; }

@@ -37,8 +37,11 @@ function kf_block_html($standalone = false) {
 
     $data = kf_public_payload();
     $id   = 'kf-' . wp_rand(1000, 999999);
+    // The numbers ride along as a JSON script (not an HTML attribute): no &quot; escaping, so the page is much smaller.
+    $json = wp_json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP);
 
-    return '<div class="kf" id="' . esc_attr($id) . '" data-kf="' . esc_attr(wp_json_encode($data)) . '">'
+    return '<div class="kf" id="' . esc_attr($id) . '" data-kf="">'
+        . '<script type="application/json" class="kf-data">' . $json . '</script>'
         . '<noscript><p>Turn on JavaScript to see the performance chart.</p></noscript>'
         . '</div>';
 }
@@ -70,7 +73,9 @@ function kf_render_standalone() {
     $year     = gmdate('Y');
 
     status_header(200);
-    nocache_headers(); // prices change hourly; never serve a stale copy
+    // Always ask the server for a fresh copy (prices change hourly), but without "no-store",
+    // so the browser's back/forward cache can show the page instantly.
+    header('Cache-Control: no-cache, max-age=0, private');
     header('Content-Type: text/html; charset=utf-8');
     ?><!doctype html>
 <html lang="en">
@@ -91,6 +96,7 @@ function kf_render_standalone() {
 <?php echo kf_structured_data(); // phpcs:ignore WordPress.Security.EscapeOutput -- JSON-encoded ?>
 <link rel="stylesheet" href="<?php echo $css; ?>">
 <link rel="stylesheet" href="<?php echo $site_css; ?>">
+<script src="<?php echo $js; ?>" defer></script>
 </head>
 <body class="kf-site">
 <header class="kf-site-head">
@@ -116,7 +122,6 @@ function kf_render_standalone() {
   <span class="kf-site-note" data-kf-t="disclaimer">Past performance is no guarantee of future results. Not investment advice.</span>
   <a class="kf-powered" href="https://shokulab.ch" target="_blank" rel="noopener">Powered by shokulab</a>
 </footer>
-<script src="<?php echo $js; ?>"></script>
 </body>
 </html>
 <?php

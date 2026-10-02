@@ -380,6 +380,10 @@ function kf_performance() {
  * Settings → "Public amounts" allows.
  */
 function kf_public_payload() {
+    static $memo = null; // built once per page view (the page and its link-preview tags both use it)
+    if ($memo !== null) {
+        return $memo;
+    }
     $perf     = kf_performance();
     $settings = kf_settings();
     $catalog  = kf_benchmark_catalog();
@@ -391,12 +395,12 @@ function kf_public_payload() {
             continue;
         }
         $names = isset($catalog[$sym]) ? $catalog[$sym] : array($sym, $sym);
-        $bench[] = array('id' => $sym, 'en' => $names[0], 'de' => $names[1], 'USD' => $series['USD'], 'CHF' => $perf['has_chf'] ? $series['CHF'] : null);
+        $bench[] = array('id' => $sym, 'en' => $names[0], 'de' => $names[1], 'USD' => kf_round_series($series['USD']), 'CHF' => $perf['has_chf'] ? kf_round_series($series['CHF']) : null);
     }
 
     $payload = array(
         'dates'      => $perf['dates'],
-        'port'       => array('USD' => $perf['port']['USD'], 'CHF' => $perf['has_chf'] ? $perf['port']['CHF'] : null),
+        'port'       => array('USD' => kf_round_series($perf['port']['USD']), 'CHF' => $perf['has_chf'] ? kf_round_series($perf['port']['CHF']) : null),
         'bench'      => $bench,
         'since'      => $perf['stats'] ? $perf['stats']['since'] : null,
         'updated'    => $perf['updated'],
@@ -454,7 +458,13 @@ function kf_public_payload() {
         }
     }
 
+    $memo = $payload;
     return $payload;
+}
+
+/** Chart lines need two decimals of a percent, not three: keeps the page small. */
+function kf_round_series($values) {
+    return array_map(function ($v) { return $v === null ? null : round($v, 2); }, (array) $values);
 }
 
 /* ---------- TradingView links ---------- */
