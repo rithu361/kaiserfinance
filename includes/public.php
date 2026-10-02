@@ -100,7 +100,7 @@ function kf_render_standalone() {
 </head>
 <body class="kf-site">
 <header class="kf-site-head">
-  <a class="kf-brand" href="<?php echo esc_url(home_url('/')); ?>" aria-label="Kai$erFinance">Kai<span class="kf-brand-mark">$</span>erFinance</a>
+  <a class="kf-brand" href="<?php echo esc_url(home_url('/')); ?>" aria-label="Kai$erFinance">Kai<span class="kf-brand-mark">$</span>er<span class="kf-brand-sub">Finance</span></a>
   <div class="kf-head-right">
     <div id="kf-lang-slot"></div>
   </div>

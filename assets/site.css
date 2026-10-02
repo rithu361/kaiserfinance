@@ -3,22 +3,25 @@
  * The gold "$" in the wordmark is the one accent; everything else stays neutral.
  * Light by default; the header switch sets data-theme="dark" on <html>. */
 :root {
-  --site-bg: #f3f4f1;
-  --site-ink: #161b22;
-  --site-muted: #5b6470;
-  --site-line: #d9ddd6;
-  --site-gold: #a8730f;
+  /* Light: sand beige, ink black, a deep gold for the $ and an olive for small labels. */
+  --site-bg: #e0ddcd;
+  --site-ink: #1d1d1b;
+  --site-muted: #5f5b4c;
+  --site-line: #c9c4ae;
+  --site-gold: #95700f;
+  --site-olive: #6e6849;
   --site-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --site-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --site-serif: "Didot", "Bodoni 72", "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
   color-scheme: light;
 }
 html[data-theme="dark"] {
-  /* Dark = the light page in lamplight: warm charcoal and paper-white ink, no blue, no neon. */
-  --site-bg: #141412;
-  --site-ink: #ebe7df;
-  --site-muted: #a39e94;
-  --site-line: #2d2b27;
-  --site-gold: #c8a25a;
+  /* Dark: the same beige pushed into warm graphite. */
+  --site-bg: #22211d;
+  --site-ink: #ebe7da;
+  --site-muted: #aaa592;
+  --site-line: #3a3832;
+  --site-gold: #cdab5f;
+  --site-olive: #a9a07a;
   color-scheme: dark;
 }
 
@@ -208,7 +211,7 @@ html.kf-text-out .kf > *:not(.kf-top) { opacity: 0; transform: translateY(3px); 
   opacity: 0; transform: translateY(-4px); transform-origin: top right;
   transition: opacity .16s ease, transform .16s ease;
 }
-html[data-theme="dark"] .kf-menu-panel { background: #1b1a17; box-shadow: 0 12px 32px rgba(0, 0, 0, .35); }
+html[data-theme="dark"] .kf-menu-panel { background: #292823; box-shadow: 0 12px 32px rgba(0, 0, 0, .35); }
 .kf-menu-panel.kf-open { opacity: 1; transform: none; }
 .kf-menu-panel[hidden] { display: none; }
 .kf-menu-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
@@ -229,3 +232,32 @@ html[data-theme="dark"] .kf-menu-panel { background: #1b1a17; box-shadow: 0 12px
   color: var(--site-muted); text-decoration: none; font-weight: 500;
 }
 .kf-site-foot .kf-login:hover { color: var(--site-ink); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---------- 3.0 design: beige, editorial ---------- */
+/* Header: wordmark centred, display button on the right. */
+.kf-site-head { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding-block: 26px 18px; }
+.kf-site-head::before { content: ""; }
+.kf-head-right { justify-self: end; }
+@media (max-width: 560px) {
+  .kf-site-head { grid-template-columns: 1fr auto; padding-block: 16px 8px; }
+  .kf-site-head::before { display: none; }
+  .kf-brand { justify-self: start; }
+}
+.kf-brand {
+  font: 500 clamp(21px, 3.2vw, 30px)/1 var(--site-serif);
+  text-transform: uppercase; letter-spacing: .07em; white-space: nowrap;
+}
+.kf-brand-mark { color: var(--site-gold); font-weight: 600; margin: 0 .01em; }
+.kf-brand-sub { margin-left: .22em; color: var(--site-olive); }
+@media (max-width: 380px) { .kf-brand { font-size: 18px; letter-spacing: .05em; } }
+
+/* Thin rule under the header, like a magazine masthead. */
+.kf-site-head { position: relative; }
+.kf-site-head::after { content: ""; position: absolute; left: 20px; right: 20px; bottom: 0; height: 1px; background: var(--site-line); }
+
+.kf-eyebrow { color: var(--site-olive); letter-spacing: .14em; }
+.kf-site h1 { font-weight: 400; letter-spacing: -0.01em; }
+.kf-menu-panel { background: #e8e5d8; border-radius: 6px; }
+.kf-menu-btn { border-radius: 4px; }
+.kf-social-link { border-radius: 4px; }
+.kf-site-foot { border-top-color: var(--site-line); }

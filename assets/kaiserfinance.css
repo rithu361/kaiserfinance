@@ -1,14 +1,15 @@
 /* Kai$erFinance public performance block. Inherits the theme's font; colours can be overridden via the --kf-* variables. */
 .kf {
-  --kf-ink: #18202a;
-  --kf-muted: #5d6a78;
-  --kf-line: #dde3ea;
-  --kf-panel: #ffffff;
-  --kf-gold: #a8730f;
-  --kf-gold-soft: #f4e7cc;
-  --kf-index: #3d5a80;
-  --kf-up: #1d7a4f;
-  --kf-down: #b3392f;
+  --kf-ink: #1d1d1b;
+  --kf-muted: #5f5b4c;
+  --kf-olive: #6e6849;
+  --kf-line: #cdc8b3;
+  --kf-panel: #e8e5d8;
+  --kf-gold: #95700f;
+  --kf-gold-soft: #dedac8;
+  --kf-index: #3f5878;
+  --kf-up: #3b6b45;
+  --kf-down: #9d3b2b;
   color: var(--kf-ink);
   background: var(--kf-panel);
   border: 1px solid var(--kf-line);
@@ -21,8 +22,8 @@
 }
 @media (prefers-color-scheme: dark) {
   .kf.kf-auto-dark {
-    --kf-ink: #ebe7df; --kf-muted: #a39e94; --kf-line: #2d2b27; --kf-panel: #1a1917;
-    --kf-gold: #c8a25a; --kf-gold-soft: #211f1b; --kf-index: #9fb0c2; --kf-up: #84b393; --kf-down: #d08672;
+    --kf-ink: #ebe7da; --kf-muted: #aaa592; --kf-olive: #a9a07a; --kf-line: #3a3832; --kf-panel: #292823;
+    --kf-gold: #cdab5f; --kf-gold-soft: #302e28; --kf-index: #9fb0c2; --kf-up: #8fb596; --kf-down: #d38c78;
   }
 }
 .kf * { box-sizing: border-box; }
@@ -64,8 +65,8 @@
 .kf-periods tbody tr:last-child th, .kf-periods tbody tr:last-child td { border-bottom: 0; }
 .kf-periods i { display: inline-block; width: 12px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 8px; }
 html[data-theme="dark"] .kf {
-  --kf-ink: #ebe7df; --kf-muted: #a39e94; --kf-line: #2d2b27; --kf-panel: #1a1917;
-    --kf-gold: #c8a25a; --kf-gold-soft: #211f1b; --kf-index: #9fb0c2; --kf-up: #84b393; --kf-down: #d08672;
+  --kf-ink: #ebe7da; --kf-muted: #aaa592; --kf-olive: #a9a07a; --kf-line: #3a3832; --kf-panel: #292823;
+    --kf-gold: #cdab5f; --kf-gold-soft: #302e28; --kf-index: #9fb0c2; --kf-up: #8fb596; --kf-down: #d38c78;
 }
 .kf > * { transition: opacity .2s ease, transform .2s ease; }
 html.kf-text-out .kf > *:not(.kf-top) { opacity: 0; transform: translateY(3px); }
@@ -85,7 +86,7 @@ html.kf-text-out .kf > *:not(.kf-top) { opacity: 0; transform: translateY(3px); 
 .kf-holdings tbody th small { color: var(--kf-muted); font-weight: 400; margin-left: 4px; }
 .kf-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 /* Benchmark chips: visitors switch comparisons on and off. */
-.kf { --kf-b-spy: #3d5a80; --kf-b-qqq: #2a8c80; --kf-b-urth: #7b5ea7; --kf-b-ewl: #c0392b; --kf-b-xau: #6b7280; --kf-b-btc: #d9622b; }
+.kf { --kf-b-spy: #3f5878; --kf-b-qqq: #3d7369; --kf-b-urth: #6a5a88; --kf-b-ewl: #a3432f; --kf-b-xau: #7a7466; --kf-b-btc: #b0602a; }
 html[data-theme="dark"] .kf { --kf-b-spy: #9fb0c2; --kf-b-qqq: #8db3a8; --kf-b-urth: #b0a4c4; --kf-b-ewl: #cf968a; --kf-b-xau: #b4ac9e; --kf-b-btc: #d1a274; }
 .kf-bar { flex-wrap: wrap; align-items: center; justify-content: flex-start; }
 .kf-legend-own { display: inline-flex; align-items: center; font-weight: 600; color: var(--kf-ink); }
@@ -179,6 +180,21 @@ html[data-theme="dark"] .kf { --kf-b-spy: #9fb0c2; --kf-b-qqq: #8db3a8; --kf-b-u
 .kf-top .kf-menu-label { font-size: 13px; color: var(--kf-muted); }
 /* Dark mode details: quiet verdict line, softer shadows, calmer fills. */
 html[data-theme="dark"] .kf-verdict { background: var(--kf-gold-soft); border: 1px solid var(--kf-line); box-shadow: inset 2px 0 0 var(--kf-gold); }
-html[data-theme="dark"] .kf-tip { box-shadow: 0 8px 24px rgba(0, 0, 0, .35); background: #1f1e1b; }
+html[data-theme="dark"] .kf-tip { box-shadow: 0 8px 24px rgba(0, 0, 0, .35); background: #2f2d28; }
 html[data-theme="dark"] .kf-chart .kf-area { fill-opacity: .07; }
 html[data-theme="dark"] .kf-alloc-fill { opacity: .85; }
+/* ---------- 3.0 design: beige, editorial ---------- */
+.kf { border-radius: 6px; }
+.kf-stats { border-radius: 4px; }
+.kf-label, .kf-periods caption, .kf-chips-label { color: var(--kf-olive); }
+.kf-verdict { background: var(--kf-gold-soft); border: 1px solid var(--kf-line); box-shadow: inset 2px 0 0 var(--kf-gold); border-radius: 4px; }
+.kf-tip { border-radius: 6px; background: #f1efe5; box-shadow: 0 8px 24px rgba(60, 50, 20, .14); }
+/* Time ranges as plain words with an underline, like size pickers in a shop. */
+.kf-ranges { gap: 2px; }
+.kf-ranges button { border: 0; border-radius: 0; background: none; padding: 4px 9px; color: var(--kf-muted); text-decoration: none; }
+.kf-ranges button:hover { color: var(--kf-ink); }
+.kf-ranges button[aria-pressed="true"] { background: none; color: var(--kf-ink); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 6px; }
+.kf-chip { border-radius: 4px; }
+.kf-alloc-track { border-radius: 2px; background: var(--kf-gold-soft); }
+.kf-alloc-fill { background: var(--kf-gold); }
+html[data-theme="dark"] .kf-tip { background: #2f2d28; }

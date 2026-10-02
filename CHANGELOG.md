@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.0
+- New look: sand beige (#e0ddcd) as the main colour in light mode, warm graphite from the same beige in dark mode, ink-black text and an olive tone for small labels.
+- Wordmark reworked: centred serif capitals "KAI$ER FINANCE" with the gold $, a thin rule under the header.
+- Editorial details: squarer corners, time ranges as plain words with an underline, quieter comparison line with a gold edge.
+- Site icon and link-preview image switched to the beige look, gold $ kept.
+
 ## 2.13.0
 - Backup: Settings → Backup downloads the whole ledger (trades, cash, assets, prices, settings) as one .json file. The API key is never included.
 - Restore: upload a backup to replace the ledger. The current ledger is kept as a safety copy first, with an "Undo last restore" button.
