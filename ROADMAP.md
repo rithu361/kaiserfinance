@@ -15,9 +15,10 @@ Improvements are shipped one at a time, roughly hourly, each as its own version.
 - 2.10.0: smoother chart (cross-fades, draw-in)
 - 2.10.1: tooltip animation
 - 2.10.2: benchmark lines glide instead of swapping charts
+- 2.11.0: header rehaul (display menu, login in footer)
 
 ## Next up (in rough order)
-1. **Header rehaul (requested):** header is just the wordmark plus one small "display" button that opens a panel with Light/Dark, EN/DE and USD/CHF; the login moves to a quiet link in the footer. Phones: one tidy row, no wrapping.
+1. **Time ranges glide too (offered):** switching 7D/30D/… slides the chart instead of cross-fading
 2. **Customizable text:** headline, intro and disclaimer in English and German from Settings
 3. **Fees on trades:** optional fee field in the trade form, paid from cash
 4. **Edit cash entries,** not only delete them

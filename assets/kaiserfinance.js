@@ -24,6 +24,7 @@
       ccyLabel: 'Currency',
       benchLabel: 'Compare with',
       themeLabel: 'Appearance',
+      display: 'Display settings',
       light: 'Light',
       dark: 'Dark',
       login: 'Log in',
@@ -69,6 +70,7 @@
       ccyLabel: 'Währung',
       benchLabel: 'Vergleichen mit',
       themeLabel: 'Darstellung',
+      display: 'Anzeige-Einstellungen',
       light: 'Hell',
       dark: 'Dunkel',
       login: 'Anmelden',
@@ -497,6 +499,69 @@
     });
   }
 
+  /* ---------- display menu: one button, a small panel with the three switches ---------- */
+
+  var menuOpen = false; // survives redraws (language/currency changes redraw the block)
+  var closeMenu = null;
+  document.addEventListener('pointerdown', function (ev) {
+    if (closeMenu && !ev.target.closest('.kf-menu')) closeMenu(false);
+  }, true);
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Escape' && closeMenu) closeMenu(true);
+  });
+
+  function displayMenu(withTheme, hasChf, rerender) {
+    var wrap = el('div', { 'class': 'kf-menu' });
+    var id = 'kf-menu-' + Math.random().toString(36).slice(2, 8);
+    var summary = lang.toUpperCase() + (hasChf ? ' · ' + ccy : '');
+    var btn = el('button', { type: 'button', 'class': 'kf-menu-btn', 'aria-expanded': 'false', 'aria-controls': id, 'aria-label': t('display') + ': ' + summary, title: t('display') },
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>' +
+      '<span>' + esc(summary) + '</span>');
+    var panel = el('div', { 'class': 'kf-menu-panel', id: id, role: 'group', 'aria-label': t('display') });
+    panel.hidden = true;
+    var row = function (label, control) {
+      var r = el('div', { 'class': 'kf-menu-row' }, '<span class="kf-menu-label">' + esc(label) + '</span>');
+      r.appendChild(control);
+      panel.appendChild(r);
+    };
+    if (withTheme) {
+      row(t('themeLabel'), segmented('kf-theme', t('themeLabel'),
+        [['light', ICONS.light, t('light')], ['dark', ICONS.dark, t('dark')]], currentTheme(),
+        function (mode, b) { setTheme(mode, b); }));
+    }
+    row(t('langLabel'), segmented('kf-lang', t('langLabel'), [['en', 'EN'], ['de', 'DE']], lang,
+      function (v) { lang = v; store('kf-lang', v); fadeSwap(rerender); }));
+    if (hasChf) {
+      row(t('ccyLabel'), segmented('kf-lang kf-ccy', t('ccyLabel'), [['USD', 'USD'], ['CHF', 'CHF']], ccy,
+        function (v) { ccy = v; store('kf-ccy', v); fadeSwap(rerender); }));
+    }
+    wrap.appendChild(btn);
+    wrap.appendChild(panel);
+
+    var hideTimer = null;
+    function open(instant) {
+      clearTimeout(hideTimer);
+      menuOpen = true;
+      panel.hidden = false;
+      btn.setAttribute('aria-expanded', 'true');
+      if (instant || reducedMotion()) { panel.classList.add('kf-open'); }
+      else { void panel.offsetWidth; panel.classList.add('kf-open'); }
+      closeMenu = close;
+    }
+    function close(refocus) {
+      menuOpen = false;
+      closeMenu = null;
+      btn.setAttribute('aria-expanded', 'false');
+      panel.classList.remove('kf-open');
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(function () { if (!panel.classList.contains('kf-open')) panel.hidden = true; }, reducedMotion() ? 0 : 180);
+      if (refocus) btn.focus();
+    }
+    btn.addEventListener('click', function () { if (menuOpen) close(false); else open(false); });
+    if (menuOpen) open(true); // was open before a redraw (e.g. after switching language)
+    return wrap;
+  }
+
   /* ---------- the block ---------- */
 
   function render(root) {
@@ -527,26 +592,16 @@
     var rerender = function () { render(root); };
     applyChrome();
 
-    // Header controls (standalone page), or a row on top of the block (shortcode).
-    var controls = el('div', { 'class': 'kf-controls' });
+    // One "display" button (standalone header, or on top of the block for the shortcode) that opens
+    // a small panel with appearance, language and currency.
     var slot = document.getElementById('kf-lang-slot');
-    if (slot) {
-      controls.appendChild(segmented('kf-theme', t('themeLabel'),
-        [['light', ICONS.light, t('light')], ['dark', ICONS.dark, t('dark')]], currentTheme(),
-        function (mode, btn) { setTheme(mode, btn); }));
-    }
-    if (hasChf) {
-      controls.appendChild(segmented('kf-lang kf-ccy', t('ccyLabel'), [['USD', 'USD'], ['CHF', 'CHF']], ccy,
-        function (v) { ccy = v; store('kf-ccy', v); fadeSwap(rerender); }));
-    }
-    controls.appendChild(segmented('kf-lang', t('langLabel'), [['en', 'EN'], ['de', 'DE']], lang,
-      function (v) { lang = v; store('kf-lang', v); fadeSwap(rerender); }));
+    var menu = displayMenu(!!slot, hasChf, rerender);
     if (slot) {
       slot.innerHTML = '';
-      slot.appendChild(controls);
+      slot.appendChild(menu);
     } else {
       var top = el('div', { 'class': 'kf-top' });
-      top.appendChild(controls);
+      top.appendChild(menu);
       root.appendChild(top);
     }
 

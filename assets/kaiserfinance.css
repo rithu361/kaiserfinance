@@ -168,3 +168,12 @@ html[data-theme="dark"] .kf { --kf-b-spy: #8fb0d8; --kf-b-qqq: #5cc8b8; --kf-b-u
   .kf-tip { transform: translate(var(--kf-tip-x, 0px), 0); }
 }
 .kf-chart .kf-draw .kf-grid { opacity: 1; }
+/* Display menu when the block is used via the shortcode (inside a theme). */
+.kf-top .kf-menu { position: relative; }
+.kf-top .kf-menu-btn { display: inline-flex; align-items: center; gap: 8px; font: inherit; font-size: 13px; font-weight: 600; color: var(--kf-ink); background: none; border: 1px solid var(--kf-line); border-radius: 99px; padding: 6px 12px 6px 10px; cursor: pointer; }
+.kf-top .kf-menu-btn svg { width: 16px; height: 16px; color: var(--kf-muted); }
+.kf-top .kf-menu-panel { position: absolute; right: 0; top: calc(100% + 8px); z-index: 20; min-width: 220px; display: grid; gap: 10px; padding: 12px; background: var(--kf-panel); border: 1px solid var(--kf-line); border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,.12); opacity: 0; transform: translateY(-4px); transition: opacity .16s ease, transform .16s ease; }
+.kf-top .kf-menu-panel.kf-open { opacity: 1; transform: none; }
+.kf-top .kf-menu-panel[hidden] { display: none; }
+.kf-top .kf-menu-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.kf-top .kf-menu-label { font-size: 13px; color: var(--kf-muted); }

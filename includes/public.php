@@ -103,9 +103,6 @@ function kf_render_standalone() {
   <a class="kf-brand" href="<?php echo esc_url(home_url('/')); ?>" aria-label="Kai$erFinance">Kai<span class="kf-brand-mark">$</span>erFinance</a>
   <div class="kf-head-right">
     <div id="kf-lang-slot"></div>
-    <a class="kf-login" href="<?php echo esc_url(admin_url('admin.php?page=kaiserfinance')); ?>" data-kf-t-label="login" aria-label="Log in" title="Log in">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-    </a>
   </div>
 </header>
 <main class="kf-site-main">
@@ -120,7 +117,10 @@ function kf_render_standalone() {
   <span>© <?php echo esc_html($year); ?> Kai$erFinance</span>
   <?php echo kf_social_links_html(); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped inside ?>
   <span class="kf-site-note" data-kf-t="disclaimer">Past performance is no guarantee of future results. Not investment advice.</span>
-  <a class="kf-powered" href="https://shokulab.ch" target="_blank" rel="noopener">Powered by shokulab</a>
+  <span class="kf-foot-end">
+    <a class="kf-login" href="<?php echo esc_url(admin_url('admin.php?page=kaiserfinance')); ?>" data-kf-t="login">Log in</a>
+    <a class="kf-powered" href="https://shokulab.ch" target="_blank" rel="noopener">Powered by shokulab</a>
+  </span>
 </footer>
 </body>
 </html>

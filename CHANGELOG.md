@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.11.0
+- New header: just the Kai$erFinance wordmark and one small display button (it shows the current language and currency, e.g. "EN · USD").
+- The button opens a panel with Appearance (light/dark), Language and Currency. It closes on a tap outside or Esc, and stays open while you switch.
+- The login moved from the header to a quiet "Log in" link in the footer.
+- Phones: the header is one clean row instead of wrapping onto two lines.
+
 ## 2.10.2
 - Benchmarks on/off: no more swapping between two charts. The chart stays put and its lines glide to the new scale; an added benchmark fades in, a removed one fades out, and the axis labels slide along.
 
