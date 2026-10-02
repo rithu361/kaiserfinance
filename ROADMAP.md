@@ -14,6 +14,7 @@ Improvements are shipped one at a time, roughly hourly, each as its own version.
 - 2.9.2: centred footer on phones
 - 2.10.0: smoother chart (cross-fades, draw-in)
 - 2.10.1: tooltip animation
+- 2.10.2: benchmark lines glide instead of swapping charts
 
 ## Next up (in rough order)
 1. **Header rehaul (requested):** header is just the wordmark plus one small "display" button that opens a panel with Light/Dark, EN/DE and USD/CHF; the login moves to a quiet link in the footer. Phones: one tidy row, no wrapping.

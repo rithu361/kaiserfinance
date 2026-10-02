@@ -162,12 +162,18 @@
 
   /* pts: [{d, p, b: {id: value}}]; ids: benchmark ids to draw. */
   function benchVar(id) { return 'var(--kf-b-' + id.split('/')[0].toLowerCase() + ', var(--kf-index))'; }
-  /* anim: 'draw' = lines draw in once (first view), 'fade' = soft cross-fade from the previous chart. */
-  function drawChart(box, pts, ids, names, anim, ghost) {
+  /*
+   * anim: 'draw'  = lines draw in once (first view)
+   *       'morph' = same days, different benchmarks: the lines stay and glide to the new scale,
+   *                 an added line fades in, a removed one fades out, the axis labels slide along
+   *       'fade'  = different days (time range): soft cross-fade from the previous chart
+   * prev: the state the previous drawChart left on its box (box._kfState).
+   */
+  function drawChart(box, pts, ids, names, anim, prev) {
     if (reducedMotion()) anim = null;
-    if (anim === 'fade' && !ghost) ghost = box.querySelector('svg');
     if (pts.length < 2) {
       box.innerHTML = '<p class="kf-empty">' + esc(t('emptyChart')) + '</p>';
+      box._kfState = null;
       return;
     }
     // Draw at the box's real width so labels stay readable on phones.
@@ -182,45 +188,61 @@
     if (!vals.length) vals = [0];
     var lo = Math.min(0, Math.min.apply(null, vals)), hi = Math.max(0, Math.max.apply(null, vals));
     var pad = (hi - lo) * 0.1 || 1; lo -= pad; hi += pad;
-    var x = function (i) { return L + i / (n - 1) * (W - L - R); };
-    var y = function (v) { return T + (hi - v) / (hi - lo) * (H - T - B); };
 
-    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(t('chartLabel')) + '">';
-    var step = niceStep((hi - lo) / 5);
-    for (var v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) {
-      var zero = Math.abs(v) < 1e-9;
-      svg += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="var(--kf-line)" stroke-width="' + (zero ? 1.5 : 1) + '"/>';
-      svg += '<text x="' + (L - 8) + '" y="' + (y(v) + 4) + '" text-anchor="end">' + (v < -1e-9 ? '−' : '') + num(v, step < 1 ? 1 : 0) + '%</text>';
-    }
-    function path(get) {
+    var morph = anim === 'morph' && prev && prev.n === n && prev.W === W && prev.d0 === pts[0].d && prev.d1 === pts[n - 1].d;
+    if (anim === 'morph' && !morph) anim = 'fade';
+    var ghost = anim === 'fade' ? ((prev && prev.svg) || box.querySelector('svg')) : null;
+    var removed = morph ? prev.ids.filter(function (id) { return ids.indexOf(id) < 0; }) : [];
+    var added = morph ? ids.filter(function (id) { return prev.ids.indexOf(id) < 0; }) : [];
+
+    var x = function (i) { return L + i / (n - 1) * (W - L - R); };
+    var yFor = function (lo_, hi_) { return function (v) { return T + (hi_ - v) / (hi_ - lo_) * (H - T - B); }; };
+    var y = yFor(lo, hi);
+    var getter = function (k) { return k === '__p' ? function (p) { return p.p; } : function (p) { return p.b[k]; }; };
+    function linePath(get, yf) {
       var d = '', started = false;
       pts.forEach(function (p, i) {
         var val = get(p);
         if (val == null) { started = false; return; }
-        d += (started ? 'L' : 'M') + x(i).toFixed(1) + ',' + y(val).toFixed(1);
+        d += (started ? 'L' : 'M') + x(i).toFixed(1) + ',' + yf(val).toFixed(1);
         started = true;
       });
       return d;
     }
-    var getP = function (p) { return p.p; };
     var first = -1, lastI = -1;
     pts.forEach(function (p, i) { if (p.p != null) { if (first < 0) first = i; lastI = i; } });
-    if (first >= 0) {
-      var area = path(getP) + 'L' + x(lastI).toFixed(1) + ',' + y(0) + 'L' + x(first).toFixed(1) + ',' + y(0) + 'Z';
-      svg += '<path class="kf-area" d="' + area + '" fill="var(--kf-gold)" fill-opacity="0.10"/>';
+    function areaPath(yf) {
+      return linePath(getter('__p'), yf) + 'L' + x(lastI).toFixed(1) + ',' + yf(0).toFixed(1) + 'L' + x(first).toFixed(1) + ',' + yf(0).toFixed(1) + 'Z';
     }
+    function grid(lo_, hi_, yf, extra) {
+      var g = '<g class="kf-grid' + (extra || '') + '">';
+      var step = niceStep((hi_ - lo_) / 5);
+      for (var v = Math.ceil(lo_ / step) * step; v <= hi_ + 1e-9; v += step) {
+        var zero = Math.abs(v) < 1e-9;
+        g += '<line data-v="' + v + '" x1="' + L + '" x2="' + (W - R) + '" y1="' + yf(v) + '" y2="' + yf(v) + '" stroke="var(--kf-line)" stroke-width="' + (zero ? 1.5 : 1) + '"/>';
+        g += '<text data-v="' + v + '" x="' + (L - 8) + '" y="' + (yf(v) + 4) + '" text-anchor="end">' + (v < -1e-9 ? '−' : '') + num(v, step < 1 ? 1 : 0) + '%</text>';
+      }
+      return g + '</g>';
+    }
+
     var last = pts[n - 1];
-    ids.forEach(function (id) {
-      svg += '<path class="kf-ln" pathLength="1" d="' + path(function (p) { return p.b[id]; }) + '" fill="none" stroke="' + benchVar(id) + '" stroke-width="2" stroke-linejoin="round"/>';
-      if (last.b[id] != null) svg += '<circle class="kf-end" cx="' + x(n - 1) + '" cy="' + y(last.b[id]) + '" r="4" fill="' + benchVar(id) + '"/>';
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(t('chartLabel')) + '">';
+    svg += grid(lo, hi, y, morph ? ' kf-grid-new' : '');
+    if (morph) svg += grid(prev.lo, prev.hi, yFor(prev.lo, prev.hi), ' kf-grid-old');
+    if (first >= 0) svg += '<path class="kf-area" d="' + areaPath(y) + '" fill="var(--kf-gold)" fill-opacity="0.10"/>';
+    removed.concat(ids).forEach(function (id) {
+      var out = removed.indexOf(id) >= 0;
+      svg += '<path class="kf-ln' + (out ? ' kf-ln-out' : '') + '" data-k="' + esc(id) + '" pathLength="1" d="' + linePath(getter(id), y) + '" fill="none" stroke="' + benchVar(id) + '" stroke-width="2" stroke-linejoin="round"/>';
+      if (last.b[id] != null) svg += '<circle class="kf-end' + (out ? ' kf-ln-out' : '') + '" data-k="' + esc(id) + '" cx="' + x(n - 1) + '" cy="' + y(last.b[id]) + '" r="4" fill="' + benchVar(id) + '"/>';
     });
-    svg += '<path class="kf-ln" pathLength="1" d="' + path(getP) + '" fill="none" stroke="var(--kf-gold)" stroke-width="2.6" stroke-linejoin="round"/>';
-    if (last.p != null) svg += '<circle class="kf-end" cx="' + x(n - 1) + '" cy="' + y(last.p) + '" r="4.5" fill="var(--kf-gold)"/>';
+    svg += '<path class="kf-ln" data-k="__p" pathLength="1" d="' + linePath(getter('__p'), y) + '" fill="none" stroke="var(--kf-gold)" stroke-width="2.6" stroke-linejoin="round"/>';
+    if (last.p != null) svg += '<circle class="kf-end" data-k="__p" cx="' + x(n - 1) + '" cy="' + y(last.p) + '" r="4.5" fill="var(--kf-gold)"/>';
     svg += '<text x="' + L + '" y="' + (H - 8) + '">' + esc(fmtDate(pts[0].d)) + '</text>';
     svg += '<text x="' + (W - R) + '" y="' + (H - 8) + '" text-anchor="end">' + esc(fmtDate(last.d)) + '</text>';
     svg += '</svg>';
     box.innerHTML = svg;
     var fresh = box.querySelector('svg');
+
     if (anim === 'draw') {
       fresh.classList.add('kf-draw');
     } else if (anim === 'fade' && ghost && ghost !== fresh) {
@@ -231,7 +253,51 @@
       fresh.classList.add('kf-fade-in');
       box.appendChild(ghost);
       setTimeout(function () { if (ghost.parentNode) ghost.parentNode.removeChild(ghost); }, 320);
+    } else if (morph) {
+      // One chart, moving: every frame redraws the lines at an in-between scale.
+      var q = function (sel) { return Array.prototype.slice.call(fresh.querySelectorAll(sel)); };
+      var lines = q('path.kf-ln'), ends = q('circle.kf-end'), area = fresh.querySelector('.kf-area');
+      var gNew = fresh.querySelector('.kf-grid-new'), gOld = fresh.querySelector('.kf-grid-old');
+      var tick = function (g, yf) {
+        Array.prototype.forEach.call(g.children, function (c) {
+          var yy = yf(parseFloat(c.getAttribute('data-v')));
+          if (c.tagName.toLowerCase() === 'line') { c.setAttribute('y1', yy); c.setAttribute('y2', yy); } else c.setAttribute('y', yy + 4);
+        });
+      };
+      var fadeOf = function (k, e) { return removed.indexOf(k) >= 0 ? 1 - e : added.indexOf(k) >= 0 ? e : 1; };
+      var frame = function (e) {
+        var yf = yFor(prev.lo + (lo - prev.lo) * e, prev.hi + (hi - prev.hi) * e);
+        lines.forEach(function (pth) {
+          var k = pth.getAttribute('data-k');
+          pth.setAttribute('d', linePath(getter(k), yf));
+          pth.style.opacity = fadeOf(k, e);
+        });
+        ends.forEach(function (c) {
+          var k = c.getAttribute('data-k'), v = getter(k)(last);
+          if (v != null) c.setAttribute('cy', yf(v));
+          c.style.opacity = fadeOf(k, e);
+        });
+        if (area) area.setAttribute('d', areaPath(yf));
+        tick(gNew, yf); tick(gOld, yf);
+        gNew.style.opacity = e; gOld.style.opacity = 1 - e;
+      };
+      var ease = function (k) { return k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; };
+      var dur = 420, t0 = null;
+      frame(0);
+      var step = function (now) {
+        if (!fresh.isConnected) return;
+        if (t0 === null) t0 = now;
+        var k = Math.min(1, (now - t0) / dur);
+        frame(ease(k));
+        if (k < 1) requestAnimationFrame(step);
+        else {
+          q('.kf-ln-out').forEach(function (el2) { el2.parentNode.removeChild(el2); });
+          if (gOld.parentNode) gOld.parentNode.removeChild(gOld);
+        }
+      };
+      requestAnimationFrame(step);
     }
+    box._kfState = { n: n, W: W, d0: pts[0].d, d1: last.d, lo: lo, hi: hi, ids: ids.slice(), svg: fresh };
     attachTooltip(box, pts, ids, names || {}, { W: W, H: H, L: L, R: R, T: T, B: B, x: x, y: y });
   }
 
@@ -573,7 +639,8 @@
           var at = now.indexOf(b.id);
           if (at >= 0) now.splice(at, 1); else now.push(b.id);
           store('kf-benches', JSON.stringify(now));
-          root._kfGhost = root.querySelector('.kf-chart svg'); // cross-fade from the current chart
+          var oldBox = root.querySelector('.kf-chart');
+          root._kfPrev = oldBox ? oldBox._kfState : null; // lines glide from the current chart
           rerender();
         });
         chips.appendChild(chip);
@@ -618,9 +685,9 @@
       var view = whole ? series : rebase(pts);
       var names = {};
       selected.forEach(function (id) { names[id] = bname(byId[id]); });
-      var anim = btn && btn._kfClicked ? 'fade' : root._kfGhost ? 'fade' : root._kfDrawn ? null : 'draw';
-      drawChart(chart, view, selected, names, anim, root._kfGhost);
-      root._kfGhost = null;
+      var anim = btn && btn._kfClicked ? 'fade' : root._kfPrev ? 'morph' : root._kfDrawn ? null : 'draw';
+      drawChart(chart, view, selected, names, anim, anim === 'fade' ? chart._kfState : root._kfPrev);
+      root._kfPrev = null;
       root._kfDrawn = true;
       if (btn) btn._kfClicked = false;
       updateStats(view, whole);

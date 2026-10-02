@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.10.2
+- Benchmarks on/off: no more swapping between two charts. The chart stays put and its lines glide to the new scale; an added benchmark fades in, a removed one fades out, and the axis labels slide along.
+
 ## 2.10.1
 - Tooltip motion: it fades and lifts in, glides gently from day to day (with the guide line and dots), and fades out. Off with "reduce motion".
 

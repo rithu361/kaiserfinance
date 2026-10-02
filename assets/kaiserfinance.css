@@ -167,3 +167,4 @@ html[data-theme="dark"] .kf { --kf-b-spy: #8fb0d8; --kf-b-qqq: #5cc8b8; --kf-b-u
   .kf-tip, .kf-tip-guide, .kf-tip-dot { transition: none !important; }
   .kf-tip { transform: translate(var(--kf-tip-x, 0px), 0); }
 }
+.kf-chart .kf-draw .kf-grid { opacity: 1; }
