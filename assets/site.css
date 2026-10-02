@@ -244,8 +244,8 @@ html[data-theme="dark"] .kf-menu-panel { background: #292823; box-shadow: 0 12px
   .kf-brand { justify-self: start; }
 }
 .kf-brand {
-  font: 500 clamp(21px, 3.2vw, 30px)/1 var(--site-serif);
-  letter-spacing: -0.005em; white-space: nowrap; /* written exactly: Kai$erFinance */
+  font: 700 clamp(21px, 3.2vw, 30px)/1 var(--site-serif);
+  letter-spacing: -0.01em; white-space: nowrap; /* written exactly: Kai$erFinance */
 }
 .kf-brand-mark { color: inherit; margin: 0 .01em; }
 .kf-brand-sub { margin-left: 0; color: inherit; } /* logo in one colour */

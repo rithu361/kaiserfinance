@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.1.4
+- Logo in bold.
+
 ## 3.1.3
 - Logo written exactly as "Kai$erFinance" (upper and lower case, no space), one colour, on the site and in the link-preview image.
 

@@ -25,6 +25,7 @@ Improvements are shipped one at a time, roughly hourly, each as its own version.
 - 3.1.1: light mode colours back to the original, new logo kept
 - 3.1.2: one-colour logo and icon
 - 3.1.3: logo spelled Kai$erFinance
+- 3.1.4: bold logo
 
 ## Next up (in rough order)
 1. **Profit per position (requested):** holdings list shows each position's return since it was opened, best first. Tap a row to expand: opened date, holding period, gain in money (only if "every holding" is public), share of the portfolio. Purchase prices and individual trades stay private. Phones: compact rows, details on tap.
