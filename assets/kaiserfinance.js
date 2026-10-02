@@ -171,8 +171,21 @@
    *       'fade'  = different days (time range): soft cross-fade from the previous chart
    * prev: the state the previous drawChart left on its box (box._kfState).
    */
-  function drawChart(box, pts, ids, names, anim, prev) {
-    if (reducedMotion()) anim = null;
+  function chartScale(pts, ids) {
+    var vals = [];
+    pts.forEach(function (p) {
+      if (p.p != null) vals.push(p.p);
+      ids.forEach(function (id) { if (p.b[id] != null) vals.push(p.b[id]); });
+    });
+    if (!vals.length) vals = [0];
+    var lo = Math.min(0, Math.min.apply(null, vals)), hi = Math.max(0, Math.max.apply(null, vals));
+    var pad = (hi - lo) * 0.1 || 1;
+    return { lo: lo - pad, hi: hi + pad };
+  }
+
+  /* scale: optional {lo, hi} (used while a range change glides); anim 'frame' = one in-between frame. */
+  function drawChart(box, pts, ids, names, anim, prev, scale) {
+    if (reducedMotion() && anim !== 'frame') anim = null;
     if (pts.length < 2) {
       box.innerHTML = '<p class="kf-empty">' + esc(t('emptyChart')) + '</p>';
       box._kfState = null;
@@ -182,14 +195,7 @@
     var W = Math.max(320, Math.min(1000, Math.round(box.clientWidth || 900)));
     var H = W < 600 ? 240 : 300, L = 46, R = 12, T = 14, B = 30;
     var n = pts.length;
-    var vals = [];
-    pts.forEach(function (p) {
-      if (p.p != null) vals.push(p.p);
-      ids.forEach(function (id) { if (p.b[id] != null) vals.push(p.b[id]); });
-    });
-    if (!vals.length) vals = [0];
-    var lo = Math.min(0, Math.min.apply(null, vals)), hi = Math.max(0, Math.max.apply(null, vals));
-    var pad = (hi - lo) * 0.1 || 1; lo -= pad; hi += pad;
+    var sc = scale || chartScale(pts, ids), lo = sc.lo, hi = sc.hi;
 
     var morph = anim === 'morph' && prev && prev.n === n && prev.W === W && prev.d0 === pts[0].d && prev.d1 === pts[n - 1].d;
     if (anim === 'morph' && !morph) anim = 'fade';
@@ -197,7 +203,8 @@
     var removed = morph ? prev.ids.filter(function (id) { return ids.indexOf(id) < 0; }) : [];
     var added = morph ? ids.filter(function (id) { return prev.ids.indexOf(id) < 0; }) : [];
 
-    var x = function (i) { return L + i / (n - 1) * (W - L - R); };
+    // Points may carry t (0..1, their place along the axis) while a range change glides.
+    var x = function (i) { return L + (pts[i].t != null ? pts[i].t : i / (n - 1)) * (W - L - R); };
     var yFor = function (lo_, hi_) { return function (v) { return T + (hi_ - v) / (hi_ - lo_) * (H - T - B); }; };
     var y = yFor(lo, hi);
     var getter = function (k) { return k === '__p' ? function (p) { return p.p; } : function (p) { return p.b[k]; }; };
@@ -242,8 +249,10 @@
     svg += '<text x="' + L + '" y="' + (H - 8) + '">' + esc(fmtDate(pts[0].d)) + '</text>';
     svg += '<text x="' + (W - R) + '" y="' + (H - 8) + '" text-anchor="end">' + esc(fmtDate(last.d)) + '</text>';
     svg += '</svg>';
+    if (anim === 'frame') svg = svg.replace('<svg ', '<svg class="kf-frame" ');
     box.innerHTML = svg;
     var fresh = box.querySelector('svg');
+    if (anim === 'frame') { box._kfState = { n: -1, W: W, lo: lo, hi: hi, ids: ids.slice(), svg: fresh }; return; }
 
     if (anim === 'draw') {
       fresh.classList.add('kf-draw');
@@ -731,6 +740,27 @@
       var last = v[v.length - 1];
       return { p: last.p, b: last.b };
     }
+    // The window of the series a range shows: index of its base day (0 = everything).
+    function startOf(from) {
+      if (from === '0000') return 0;
+      for (var i = 0; i < series.length; i++) if (series[i].d >= from) return Math.max(0, i - 1);
+      return 0;
+    }
+    // An in-between view starting at a fractional index s: the first point is interpolated,
+    // everything is rebased to it and spread across the full width.
+    function windowView(s) {
+      var i0 = Math.floor(s), f = s - i0, N = series.length;
+      if (i0 >= N - 1) { i0 = N - 2; f = 1; }
+      var a = series[i0], b2 = series[i0 + 1];
+      var mix = function (u, v) { return u == null ? v : v == null ? u : u + (v - u) * f; };
+      var first = { d: f < 0.5 ? a.d : b2.d, p: mix(a.p, b2.p), b: {} };
+      for (var id in a.b) first.b[id] = mix(a.b[id], b2.b[id]);
+      var pts = rebase([first].concat(series.slice(i0 + 1)));
+      var span = (N - 1) - (i0 + f);
+      pts.forEach(function (q, k) { q.t = k === 0 ? 0 : ((i0 + k) - (i0 + f)) / span; });
+      return pts;
+    }
+    var glide = null;
     function show(from, btn) {
       var pts = series.filter(function (p) { return p.d >= from; });
       var whole = pts.length === series.length || pts.length < 2;
@@ -740,11 +770,48 @@
       var view = whole ? series : rebase(pts);
       var names = {};
       selected.forEach(function (id) { names[id] = bname(byId[id]); });
-      var anim = btn && btn._kfClicked ? 'fade' : root._kfPrev ? 'morph' : root._kfDrawn ? null : 'draw';
-      drawChart(chart, view, selected, names, anim, anim === 'fade' ? chart._kfState : root._kfPrev);
-      root._kfPrev = null;
-      root._kfDrawn = true;
+      var clicked = btn && btn._kfClicked;
       if (btn) btn._kfClicked = false;
+      var finish = function () {
+        var anim = root._kfPrev ? 'morph' : root._kfDrawn ? null : 'draw';
+        drawChart(chart, view, selected, names, anim, root._kfPrev);
+        root._kfPrev = null;
+        root._kfDrawn = true;
+      };
+      // Range change: the chart zooms smoothly from the old window to the new one (real data every frame).
+      var st = chart._kfState;
+      var s0 = glide ? glide.s : (root._kfStart != null ? root._kfStart : null);
+      var s1 = whole ? 0 : startOf(from);
+      root._kfStart = s1;
+      if (clicked && st && s0 !== null && s0 !== s1 && !reducedMotion() && series.length > 2) {
+        var target = chartScale(view, selected);
+        var from_ = { s: s0, lo: glide ? glide.lo : st.lo, hi: glide ? glide.hi : st.hi };
+        var token = {};
+        glide = { token: token, s: s0, lo: from_.lo, hi: from_.hi };
+        var dur = 520, t0 = null;
+        var ease = function (k) { return k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; };
+        var step = function (now) {
+          if (!glide || glide.token !== token || !chart.isConnected) return;
+          if (t0 === null) t0 = now;
+          var k = Math.min(1, (now - t0) / dur), e = ease(k);
+          if (k < 1) {
+            glide.s = from_.s + (s1 - from_.s) * e;
+            glide.lo = from_.lo + (target.lo - from_.lo) * e;
+            glide.hi = from_.hi + (target.hi - from_.hi) * e;
+            var wv = windowView(glide.s), need = chartScale(wv, selected);
+            // Never let a line leave the plot: widen the in-between scale if this frame's data needs it.
+            drawChart(chart, wv, selected, names, 'frame', null, { lo: Math.min(glide.lo, need.lo), hi: Math.max(glide.hi, need.hi) });
+            requestAnimationFrame(step);
+          } else {
+            glide = null;
+            finish();
+          }
+        };
+        requestAnimationFrame(step);
+      } else {
+        glide = null;
+        finish();
+      }
       updateStats(view, whole);
       Array.prototype.forEach.call(ranges.children, function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
       root.setAttribute('data-kf-range', from);

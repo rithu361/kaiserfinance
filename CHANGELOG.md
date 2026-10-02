@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.12.0
+- Time ranges glide: switching 7D/30D/90D/YTD/1Y/All zooms the chart smoothly to the new window (about half a second), with real data in every frame, instead of cross-fading two charts.
+- Tapping another range mid-glide carries on smoothly from where it is. With "reduce motion" on, it switches instantly.
+
 ## 2.11.0
 - New header: just the Kai$erFinance wordmark and one small display button (it shows the current language and currency, e.g. "EN · USD").
 - The button opens a panel with Appearance (light/dark), Language and Currency. It closes on a tap outside or Esc, and stays open while you switch.
