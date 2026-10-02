@@ -155,3 +155,15 @@ html[data-theme="dark"] .kf { --kf-b-spy: #8fb0d8; --kf-b-qqq: #5cc8b8; --kf-b-u
   .kf-chart .kf-draw .kf-ln { stroke-dashoffset: 0; }
   .kf-chart .kf-draw .kf-area, .kf-chart .kf-draw .kf-end { opacity: 1; }
 }
+/* Tooltip motion: a quick fade-and-lift in, a gentle glide between days, a soft fade out. */
+.kf-tip { transform: translate(var(--kf-tip-x, 0px), 4px); opacity: 0; transition: opacity .14s ease, transform .14s ease; }
+.kf-tip.kf-tip-on { opacity: 1; transform: translate(var(--kf-tip-x, 0px), 0); }
+.kf-tip-guide { stroke-opacity: 0; transition: stroke-opacity .14s ease, transform .09s ease-out; }
+.kf-tip-active .kf-tip-guide { stroke-opacity: .7; }
+.kf-tip-dot { opacity: 0; transition: opacity .14s ease, transform .09s ease-out; }
+.kf-tip-dot.kf-on { opacity: 1; }
+.kf-tip-jump, .kf-tip-jump .kf-tip-guide, .kf-tip-jump .kf-tip-dot { transition: opacity .14s ease, stroke-opacity .14s ease !important; }
+@media (prefers-reduced-motion: reduce) {
+  .kf-tip, .kf-tip-guide, .kf-tip-dot { transition: none !important; }
+  .kf-tip { transform: translate(var(--kf-tip-x, 0px), 0); }
+}

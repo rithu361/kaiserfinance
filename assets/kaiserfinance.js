@@ -250,13 +250,14 @@
     var guide = document.createElementNS(NS, 'line');
     guide.setAttribute('y1', g.T); guide.setAttribute('y2', g.H - g.B);
     guide.setAttribute('stroke', 'var(--kf-muted)'); guide.setAttribute('stroke-dasharray', '3 3');
-    guide.setAttribute('opacity', '0');
+    guide.setAttribute('x1', 0); guide.setAttribute('x2', 0);
+    guide.setAttribute('class', 'kf-tip-guide');
     svgEl.appendChild(guide);
     var marks = [];
     function mark(color) {
       var c = document.createElementNS(NS, 'circle');
-      c.setAttribute('r', '4.5'); c.setAttribute('fill', color);
-      c.setAttribute('stroke', 'var(--kf-panel)'); c.setAttribute('stroke-width', '2'); c.setAttribute('opacity', '0');
+      c.setAttribute('r', '4.5'); c.setAttribute('fill', color); c.setAttribute('cx', 0); c.setAttribute('cy', 0);
+      c.setAttribute('stroke', 'var(--kf-panel)'); c.setAttribute('stroke-width', '2'); c.setAttribute('class', 'kf-tip-dot');
       svgEl.appendChild(c); marks.push(c); return c;
     }
     var rows = ids.map(function (id) { return { id: id, color: benchVar(id), dot: mark(benchVar(id)) }; });
@@ -267,13 +268,21 @@
     svgEl.setAttribute('tabindex', '0');
     var n = pts.length, current = n - 1;
 
+    // Motion: the box fades and lifts in, then glides between days; guide line and dots glide along.
+    // Positions use transforms so the browser can animate them smoothly.
+    var hideTimer = null;
     function show(i) {
       current = Math.max(0, Math.min(n - 1, i));
       var p = pts[current], px = g.x(current);
-      guide.setAttribute('x1', px); guide.setAttribute('x2', px); guide.setAttribute('opacity', '0.7');
+      var appearing = !svgEl.classList.contains('kf-tip-active');
+      clearTimeout(hideTimer);
+      if (appearing) svgEl.classList.add('kf-tip-jump'); // first frame: place without gliding
+      svgEl.classList.add('kf-tip-active');
+      guide.style.transform = 'translateX(' + px + 'px)';
       var place = function (dot, v) {
-        if (v == null) { dot.setAttribute('opacity', '0'); return; }
-        dot.setAttribute('cx', px); dot.setAttribute('cy', g.y(v)); dot.setAttribute('opacity', '1');
+        if (v == null) { dot.classList.remove('kf-on'); return; }
+        dot.style.transform = 'translate(' + px + 'px,' + g.y(v) + 'px)';
+        dot.classList.add('kf-on');
       };
       place(own.dot, p.p);
       rows.forEach(function (r) { place(r.dot, p.b[r.id]); });
@@ -283,16 +292,29 @@
       tip.innerHTML = '<div class="kf-tip-date">' + esc(fmtDate(p.d)) + '</div>' +
         line(own.color, t('legendPortfolio'), p.p) +
         rows.map(function (r) { return line(r.color, names[r.id] || r.id, p.b[r.id]); }).join('');
-      tip.hidden = false;
+      if (tip.hidden) { tip.hidden = false; tip.classList.add('kf-tip-jump'); }
       openTip = { svg: svgEl, close: close };
       var scale = svgEl.getBoundingClientRect().width / g.W;
       var left = px * scale, tw = tip.offsetWidth, bw = box.clientWidth;
-      tip.style.left = Math.max(0, Math.min(bw - tw, left > bw / 2 ? left - tw - 12 : left + 12)) + 'px';
+      tip.style.left = '0px';
+      tip.style.setProperty('--kf-tip-x', Math.max(0, Math.min(bw - tw, left > bw / 2 ? left - tw - 12 : left + 12)) + 'px');
+      if (tip.classList.contains('kf-tip-jump') || appearing) {
+        void tip.offsetWidth; // apply the start position before turning transitions back on
+        requestAnimationFrame(function () {
+          tip.classList.remove('kf-tip-jump');
+          svgEl.classList.remove('kf-tip-jump');
+          tip.classList.add('kf-tip-on');
+        });
+      } else {
+        tip.classList.add('kf-tip-on');
+      }
     }
     function hide() {
-      tip.hidden = true;
-      guide.setAttribute('opacity', '0');
-      marks.forEach(function (m) { m.setAttribute('opacity', '0'); });
+      tip.classList.remove('kf-tip-on');
+      svgEl.classList.remove('kf-tip-active');
+      marks.forEach(function (m) { m.classList.remove('kf-on'); });
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(function () { if (!tip.classList.contains('kf-tip-on')) tip.hidden = true; }, reducedMotion() ? 0 : 160);
       if (openTip && openTip.svg === svgEl) openTip = null;
     }
     function close() {
