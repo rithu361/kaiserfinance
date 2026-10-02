@@ -121,10 +121,8 @@ function kf_og_render() {
         return $box[2]; // right edge
     };
 
-    // Wordmark, as on the site: KAI$ER FINANCE in one colour, serif capitals.
-    $x = 72; $y = 104;
-    $x = $text(34, $serif, $ink, $x, $y, 'KAI$ER');
-    $text(34, $serif, $ink, $x + 14, $y, 'FINANCE');
+    // Wordmark, as on the site: Kai$erFinance in one colour.
+    $text(40, $serif, $ink, 72, 108, 'Kai$erFinance');
     $text(17, $bold, $muted, 72, 158, 'SPOT PORTFOLIO VS ' . strtoupper(kf_og_summary()['bname']));
 
     $o = kf_og_summary();

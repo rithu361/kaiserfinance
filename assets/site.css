@@ -245,11 +245,11 @@ html[data-theme="dark"] .kf-menu-panel { background: #292823; box-shadow: 0 12px
 }
 .kf-brand {
   font: 500 clamp(21px, 3.2vw, 30px)/1 var(--site-serif);
-  text-transform: uppercase; letter-spacing: .07em; white-space: nowrap;
+  letter-spacing: -0.005em; white-space: nowrap; /* written exactly: Kai$erFinance */
 }
 .kf-brand-mark { color: inherit; margin: 0 .01em; }
-.kf-brand-sub { margin-left: .22em; color: inherit; } /* logo in one colour */
-@media (max-width: 380px) { .kf-brand { font-size: 18px; letter-spacing: .05em; } }
+.kf-brand-sub { margin-left: 0; color: inherit; } /* logo in one colour */
+@media (max-width: 380px) { .kf-brand { font-size: 20px; } }
 
 /* Thin rule under the header, like a magazine masthead. */
 .kf-site-head { position: relative; }
